@@ -28,7 +28,7 @@
         <email>guggemos@mnm-team.org</email>
       </address>
     </author>
-    <date day="15" month="May" year="2017"/>
+    <date />
     <area>INTERNET</area>
     <workgroup>Light-Weight Implementation Guidance (lwig)</workgroup>
     <abstract>
@@ -78,15 +78,15 @@ in a complete way to fit multiple purpose usage of these OS. However,
 completeness of the IPsec suite as well as multi purpose scope of these
 OS is often performed at the expense of resources, or a lack of
 performance. As a result, constraint devices are likely to have their
-own implementation of ESP optimized and adpated to their specificities.
+own implementation of ESP optimized and adapted to their specificities.
 With the adoption of IPsec by IoT devices with minimal IKEv2 <xref
 target="RFC7815"/> and ESP Header Compression (EHC) with <xref
 target="I-D.mglt-ipsecme-diet-esp"/> or <xref
 target="I-D.mglt-ipsecme-ikev2-diet-esp-extension"/>, it becomes crucial
-that ESP implementation designed for constrint devices remain
+that ESP implementation designed for constraint devices remain
 inter-operable with the standard ESP implementation to avoid a
 fragmented usage of ESP. This document describes the the minimal
-properties and ESP implementration needs to meet. </t>
+properties and ESP implementation needs to meet. </t>
 
 <t> For each field of the ESP packet represented in <xref
 target="fig-esp-description"/> this document provides recommendations
@@ -146,11 +146,11 @@ low. In case of collision, the SPI is simply re-generated.  </t>
 <t> However, for some constraint nodes, generating a random SPI may
 consume to much resource, in which case SPI can be generated using
 predictable functions or even a fix value. In fact, the SPI does not
-need to the SPI does not need to be random. Generating non random SPI
-MAY lead to privacy and security concerns. As a result, this alternative
-should be considered for devices that would be strongly impacted by the
-generation of a random SPI and after understanding the privacy and
-security impact of generating non random SPI.</t>
+need to be random. Generating non random SPI MAY lead to privacy and
+security concerns. As a result, this alternative should be considered
+for devices that would be strongly impacted by the generation of a
+random SPI and after understanding the privacy and security impact of
+generating non random SPI.</t>
 
 <t> When a constraint node uses fix value for SPIs, it imposes some
 limitations on the number of inbound SA. This limitation can be
@@ -165,10 +165,10 @@ its sends traffic. As SPI are only used for inbound traffic by the peer,
 this allows each peer to manage the set of SPIs used for its inbound
 traffic.</t>
 
-<t> The use of fix SPI should not be considered as a way to avoid strong
+<t> The use of fix SPI MUST NOT be considered as a way to avoid strong
 random generators. Such generator will be required in order to provide
 strong cryptographic protection and follow the randomness requirements
-for security discribed in <xref target="RFC4086"/>. Instead, the use of
+for security described in <xref target="RFC4086"/>. Instead, the use of
 a fix SPI should only considered as a way to overcome the resource
 limitations of the node, when this is feasible.  </t>
 
@@ -182,28 +182,28 @@ application, the SPI may leak in an obvious way the type of sensor, the
 application involved or the model of the constraint device.  When
 identification of the application or the hardware is associated to
 privacy, the SPI MUST be randomly generated. However, one needs to
-realize that in this case this is likely to be suffisiant and a
-thourouful privacy analysis is required. More specifically, traffic
+realize that in this case this is likely to be sufficient and a
+thorough privacy analysis is required. More specifically, traffic
 pattern MAY leak sufficient information in itself. In other words,
 privacy leakage is a complex and the use of random SPI is unlikely to be
 sufficient.</t> 
 
 <t>As the general recommendation is to randomly generate the SPI,
-Constraint device that will use a limited number of fix SPI are expected
-to be very constraint devices with very limited capabilites, where the
+constraint device that will use a limited number of fix SPI are expected
+to be very constraint devices with very limited capabilities, where the
 use of randomly generated SPI may prevent them to implement IPsec. In
-this case the ability to provision no random SPI enable these device to
-secure their communications.  Such devices are expected to providing
-limited information and how the use of nonrandom SPI impacts privacy
-requires further analysis. Typically temperature sensors, wind sensors,
-use outdoor do not leak privacy sensitive information. When used indoor,
-the privacy information is stored in the encrypted data and as such does
-not leak privacy.</t>
+this case the ability to provision non random SPI enables these devices
+to secure their communications. These devices, due to there limitations,
+are expected to provide limited information and how the use of non random
+SPI impacts privacy requires further analysis. Typically temperature
+sensors, wind sensors, used outdoor do not leak privacy sensitive
+information. When used indoor, the privacy information is stored in the
+encrypted data and as such does not leak privacy.</t>
 
 <t>As far as security is concerned, revealing the type of application
 or model of the constraint device could be used to identify the
 vulnerabilities the constraint device is subject to. This is especially
-sensitive for constraint device where patches or software updates will
+sensitive for constraint devices where patches or software updates will
 be challenging to operate. As a result, these devices may remain
 vulnerable for relatively long period. In addition, predictable SPI
 enable an attacker to forge packets with a valid SPI. Such packet will
@@ -237,8 +237,8 @@ SAs MUST be supported by all ESP implementations."</t>
     
 <section anchor="sec-sn" title="Sequence Number(SN) (32 bit)">
       
-<t> According to  <xref target="RFC4303"/>, the sequence number is a
-mandatory 32 bits field in the packet.  </t>
+<t> According to  <xref target="RFC4303"/>, the Sequence Number (SN) is
+a mandatory 32 bits field in the packet.  </t>
 
 <t> The SN is set by the sender so the receiver can implement
 anti-replay protection. The SN is derived from any strictly increasing
@@ -256,17 +256,17 @@ increasing function to generate the SN.  </t>
 sent. A constraint device may avoid maintaining this context and use
 another source that is known to always increase. Typically, constraint
 nodes using 802.15.4 Time Slotted Channel Hopping (TSCH), whose
-communication is heavily dependent on time, can take advanatge of their
-clock to generate the SN.  This guarantees a strictly increasing
+communication is heavily dependent on time, can take advantage of their
+clock to generate the SN. This would guarantee a strictly increasing
 function, and avoid storing any additional values or context related to
 the SN. When the use of a clock is considered, one should take care that
 packets associated to a given SA are not sent with the same time value.
 </t>
 
 <t>For inbound traffic, it is RECOMMENDED to provide a anti-replay
-protection,and the size of the window depends on the ability of teh
+protection,and the size of the window depends on the ability of the
 network to deliver packet out of order. As a result, in environment
-where out of order packets is not possbile the window size can be set to
+where out of order packets is not possible the window size can be set to
 one. However, while RECOMMENDED, there is no requirements to implement
 an anti replay protection mechanism implemented by IPsec. A node MAY
 drop anti-replay protection provided by IPsec, and instead implement its
@@ -332,7 +332,7 @@ TFC has not yet being widely adopted for standard ESP traffic. One
 possible reason is that it requires to shape the traffic according to
 one traffic pattern that needs to be maintained. This is likely to
 require extra processing as well as providing a "well recognized"
-traffic shape which could end up being counter productive. As such TFC
+traffic shape which could end up being counterproductive. As such TFC
 is not expected to be supported by a minimal ESP implementation.</t>
 
 <t>As a result, TFC cannot  not be enabled with minimal, and
@@ -356,10 +356,10 @@ addition, the information leaked by the traffic shaping may also be
 addressed by the application level. For example, it is preferred to have
 a sensor sending some information at regular time interval, rather when
 an specific event is happening. Typically a sensor monitoring the
-temperature, or a door the information is expected to send regularly the
-information - i.e. the temperature of teh room or whether the door is
-closed or open) instead of only sending the information when the
-temperature has raised or when the  door is being opened. </t>
+temperature, or a door is expected to send regularly the information -
+i.e. the temperature of the room or whether the door is closed or open)
+instead of only sending the information when the temperature has raised
+or when the  door is being opened. </t>
     
 </section>
     
@@ -385,11 +385,11 @@ and so may be avoided. On the other hand, constraint nodes may be
 dedicated to specific applications, in which case, traffic pattern may
 expose the application or the type of node. For these nodes, not sending
 dummy packet may have some privacy implication that needs to be
-measured. However, for the same reasons expose din <xref
+measured. However, for the same reasons exposed in <xref
 target="sec-padding"/> traffic shaping at the IPsec layer may also
 introduce some traffic pattern, and on constraint devices the
 application is probably the most appropriated layer to limit the risk of
-leaking information by traffic shapping.</t>
+leaking information by traffic shaping.</t>
       
 <t> In some cases, devices are dedicated to a single application or a
 single transport protocol, in which case, the Next Header has a fix
