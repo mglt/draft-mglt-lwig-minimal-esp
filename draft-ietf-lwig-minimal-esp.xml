@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="US-ASCII"?>
 <!DOCTYPE rfc SYSTEM "rfc2629.dtd">
 <?rfc sortrefs='yes' ?>
-<rfc category="info" docName="draft-mglt-lwig-minimal-esp-07" ipr="trust200902">
+<rfc category="info" docName="draft-ietf-lwig-minimal-esp-00" ipr="trust200902">
   <front>
     <title abbrev="Minimal ESP">Minimal ESP</title>
     <author surname="Migault" initials="D.M." fullname="Daniel Migault">
@@ -460,40 +460,42 @@ result, the list is provided as indicative: </t>
 <t><list style="numbers">
           
 <t> Security: Security is the criteria that should be considered first
-for the selection of cipher suites. The security of cipher suites is
-expected to evolve over time, and it is of primary importance to follow
-up-to-date security guidances and recommendations. The chosen cipher
-suites MUST NOT be known vulnerable or weak (see <xref
-target="RFC8221"/> for outdated ciphers). ESP can be used to
-authenticate only or to encrypt the communication. In the later case,
-authenticated encryption must always be considered <xref
-target="RFC8221"/>.</t>
+for the selection of encryption algorythm transform. The security of
+encryption algorythm transforms is expected to evolve over time, and it
+is of primary importance to follow up-to-date security guidances and
+recommendations.  The chosen encryption algorythm transforms MUST NOT be
+known vulnerable or weak (see <xref target="RFC8221"/> for outdated
+ciphers). ESP can be used to authenticate only or to encrypt the
+communication. In the later case, authenticated encryption must always
+be considered <xref target="RFC8221"/>.</t>
           
-<t> Interoperability:  Interoperability considers the cipher suites
-shared with the other nodes. Note that it is not because a cipher suite
-is widely deployed that is secured. As a result, security SHOULD NOT be
-weaken for interoperability. <xref target="RFC8221"/> and successors
-consider the life cycle of cipher suites sufficiently long to provide
-interoperability. Constraint devices may have limited interoperability
-requirements which makes possible to reduces the number of cipher suites
-to implement.</t>
+<t> Interoperability:  Interoperability considers the encryption
+algorythm transforms shared with the other nodes. Note that it is not
+because a encryption algorythm transform is widely deployed that is
+secured. As a result, security SHOULD NOT be weaken for
+interoperability. <xref target="RFC8221"/> and successors consider the
+life cycle of encryption algorythm transforms sufficiently long to
+provide interoperability.  Constraint devices may have limited
+interoperability requirements which makes possible to reduces the number
+of encryption algorythm transforms to implement.</t>
 
 <t> Power Consumption and Cipher Suite Complexity: Complexity of the
-cipher suite or the energy associated to it are especially considered
-when devices have limited resources or are using some batteries, in
-which case the battery determines the life of the device. The choice of
-a cryptographic function may consider re-using specific libraries or to
-take advantage of hardware acceleration provided by the device. For
-example if the device benefits from AES hardware modules and uses
-AES-CTR, it may prefer AUTH_AES-XCBC for its authentication. In
-addition, some devices may also embed radio modules with hardware
-acceleration for AES-CCM, in which case, this mode may be preferred.</t>
+encryption algorythm transform or the energy associated to it are
+especially considered when devices have limited resources or are using
+some batteries, in which case the battery determines the life of the
+device. The choice of a cryptographic function may consider re-using
+specific libraries or to take advantage of hardware acceleration
+provided by the device. For example if the device benefits from AES
+hardware modules and uses AES-CTR, it may prefer AUTH_AES-XCBC for its
+authentication. In addition, some devices may also embed radio modules
+with hardware acceleration for AES-CCM, in which case, this mode may be
+preferred.</t>
 
-<t> Power Consumption and Bandwidth Consumption: Similarly to the cipher
-suite complexity, reducing the payload sent, may significantly reduce
-the energy consumption of the device. As a result, cipher suites with
-low overhead may be considered. To reduce the overall payload size one
-may for example:
+<t> Power Consumption and Bandwidth Consumption: Similarly to the
+encryption algorythm transform complexity, reducing the payload sent,
+may significantly reduce the energy consumption of the device. As a
+result, encryption algorythm transforms with low overhead may be
+considered. To reduce the overall payload size one may for example:
 
 <list style="numbers">
 
