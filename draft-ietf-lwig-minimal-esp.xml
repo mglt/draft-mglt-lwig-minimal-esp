@@ -11,7 +11,7 @@
 <?rfc inline="yes"?>
 <?rfc docmapping="yes"?>
 
-<rfc category="info" docName="draft-ietf-lwig-minimal-esp-01" ipr="trust200902">
+<rfc category="info" docName="draft-ietf-lwig-minimal-esp-02" ipr="trust200902">
   <front>
     <title abbrev="Minimal ESP">Minimal ESP</title>
     <author surname="Migault" initials="D.M." fullname="Daniel Migault">
@@ -282,7 +282,7 @@ The determination of the use of ESN is based on the largest possible value a SN 
 When SN is incremented for each packet, the number of packets sent over the life time of a session may be considered. 
 However, when the SN is incremented differently - such as when time is used - the maximum value SN needs to be considered instead.   
 Note that the limit of messages being sent is primary determined by the security associated to the key rather than the SN.
-The security of the key used to encrypt decreases with each message being sent and a node MUST ensure the limit is not reached - even though the SN would permit it. 
+The security of all data protected under a given key decreases slightly with each message and a node MUST ensure the limit is not reached - even though the SN would permit it. 
 In a constrainted environment, it is likely that the implementation of a rekey mechanism is preferred over the use of ESN.    
 </t>
 
@@ -563,10 +563,10 @@ When a node is provisioned with a session key that is used across reboot, the im
 <t>It is RECOMMENDED to use ESP in conjunction of key management protocols such as for example IKEv2 <xref target="RFC7296"/> or  minimal IKEv2 <xref target="RFC7815"/>.
 Such mechanisms are responsible to negotiate fresh session keys as well as prevent a session key being use beyond its life time.
 
-When such mechanisms cannot be implemented and the session key is, for example, provisioned, the nodes SHOULD ensure that keys are not used beyond their life time and that the appropriated use of the key remains across reboots. 
+When such mechanisms cannot be implemented and the session key is, for example, provisioned, the nodes MUST ensure that keys are not used beyond their life time and that the appropriated use of the key remains across reboots - e.g. conditions on counters and nonces remains valid. 
 </t>
 
-<t>When a node generates its key or when random value such as nonces are generated, the random generation MUST follow <xref target="RFC4086"/>.
+<t>When a node generates its key or when random value such as nonces are generated, the random generation MUST follow <xref target="RFC4086"/>. In addition <xref target="SP-800-90A-Rev-1"/> provides appropriated guidances to build random generators based on deterministic random functions. 
 </t>
 
 </section>
@@ -610,6 +610,19 @@ In particular Scott Fluhrer suggested to include the rekey index in the SPI as w
 <?rfc include="reference.I-D.mglt-ipsecme-diet-esp"?>
 <?rfc include="reference.I-D.mglt-ipsecme-ikev2-diet-esp-extension"?>
 <?rfc include="reference.RFC.8452.xml"?>
+<reference anchor="SP-800-90A-Rev-1" target="https://csrc.nist.gov/publications/detail/sp/800-90a/rev-1/final">
+  <front>
+    <title>Recommendation for Random Number Generation Using Deterministic Random Bit Generators</title>
+<author initials="E. B." surname="Elain" fullname="Elaine Barker">
+                <organization >NIST</organization>
+            </author>
+<author initials="J. K." surname="Kelsey" fullname="John Kelsey">
+                <organization >NIST</organization>
+            </author>
+            <date month="" year="" />
+
+  </front>
+</reference>
 
 </references>
 
