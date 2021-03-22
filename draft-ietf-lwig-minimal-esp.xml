@@ -294,7 +294,7 @@ Next header is intended to specify the data contained in the payload as well as 
 In addition, the Next Header may also carry an indication on how to process the packet <xref target="I-D.nikander-esp-beet-mode"/>.  </t>
 
 <t> The ability to generate and receive dummy packet is required by <xref target="RFC4303"/>. 
-For interoperability, it is RECOMMENDED a minimal ESP implementation discards dummy packets.
+For interoperability, a minimal ESP implementation MUST discard dummy packets.
 Note that such recommendation only applies for nodes receiving packets, and that nodes designed to only send data may not implement this capability.  </t>
       
 <t> As the generation of dummy packets is subject to local management and based on a per-SA basis, a minimal ESP implementation may not generate such dummy packet.
@@ -378,7 +378,7 @@ This causes an issue for devices that are configured with a key.
 When the key is likely to be re-used across reboots, it is RECOMMENDED to consider transforms that are nonce misuse resistant such as AES-GCM-SIV for example<xref target="RFC8452"/> </t>
 
 <t> Interoperability:  Interoperability considers the encryption algorithm transforms shared with the other nodes. 
-Note that it is not because an encryption algorithm transform is widely deployed that is secured. 
+Note that it is not because an encryption algorithm transform is widely deployed that it is secured. 
 As a result, security SHOULD NOT be weakened for interoperability. 
 <xref target="RFC8221"/> and successors consider the life cycle of encryption algorithm transforms sufficiently long to provide interoperability.  
 Constraint devices may have limited interoperability requirements which makes possible to reduces the number of encryption algorithm transforms to implement.</t>
