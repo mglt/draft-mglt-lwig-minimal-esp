@@ -44,7 +44,9 @@
     <abstract>
       
 <t>This document describes a minimal implementation of the IP Encapsulation Security Payload (ESP) defined in RFC 4303. Its purpose is to enable implementation of ESP with a minimal set of options to remain compatible with ESP as described in RFC 4303. 
-A minimal version of ESP is not intended to become a replacement of the RFC 4303 ESP, but instead to enable a limited implementation to interoperate with implementations of RFC 4303 ESP.</t>
+A minimal version of ESP is not intended to become a replacement of the RFC 4303 ESP. 
+Instead, a minimal implementation is expected to be optimized for constrained environment while remaining interoperable with implementations of RFC 4303 ESP.
+Constrains include among other limiting the number of flash writes, handling frequent wakeup / sleep states, limiting wakeup time, or reducing the use of random generation. </t>
 
 <t> This document describes what is required from RFC 4303 ESP  as well as various ways to optimize compliance with RFC 4303 ESP.  </t>
 
@@ -70,7 +72,7 @@ IPsec is used to provide confidentiality, data origin authentication, connection
 <t><xref target="fig-esp-description"/> describes an ESP Packet.
 Currently ESP is implemented in the kernel of major multipurpose Operating Systems (OS). The ESP and IPsec suite is usually implemented in a complete way to fit multiple purpose usage of these OS. 
 However, completeness of the IPsec suite as well as multipurpose scope of these OS is often performed at the expense of resources, or a lack of performance. 
-As a result, constraint devices are likely to have their own implementation of ESP optimized and adapted to their specificities such as limiting the number of flash writes (for each packets or across wake time), handling frequence wake/up sleep while limiting wake time, or reducing the use of random generation.
+As a result, constraint devices are likely to have their own implementation of ESP optimized and adapted to their specificities such as limiting the number of flash writes (for each packet or across wake time), handling frequent wakeup and sleep state, limiting wakeup time, or reducing the use of random generation.
 With the adoption of IPsec by IoT devices with minimal IKEv2 <xref target="RFC7815"/> and ESP Header Compression (EHC) with <xref target="I-D.mglt-ipsecme-diet-esp"/> or <xref target="I-D.mglt-ipsecme-ikev2-diet-esp-extension"/>, it becomes crucial that ESP implementation designed for constraint devices remain inter-operable with the standard ESP implementation to avoid a fragmented usage of ESP. 
 This document describes the minimal properties and ESP implementation needs to meet. </t>
 
@@ -143,15 +145,16 @@ As SPI are only used for inbound traffic by the peer, this allows each peer to m
 Typically, a passive attacker may derive information such as the number of constraint devices connecting the remote peer, and in conjunction with data rate, the attacker may eventually determine the application the constraint device is associated to. 
 If the SPIs are set by a manufacturer or by some software application, the SPI may leak in an obvious way the type of sensor, the application involved or the model of the constraint device.  
 When identification of the application or the hardware is associated to privacy, the SPI MUST be randomly generated. 
-However, one needs to realize that in this case this is likely to be sufficient and a thorough privacy analysis is required. 
-More specifically, traffic pattern may leak sufficient information in itself. 
+However, one needs to realize that in this case this is likely not to be sufficient and a thorough privacy analysis is required. 
+More specifically, traffic pattern may also leak significant privacy sensitive information. 
 In other words, privacy leakage is a complex and the use of random SPI is unlikely to be sufficient.</t> 
 
 <t>As the general recommendation is to randomly generate the SPI, constraint devices that will use a (very) limited number of SPIs are expected to be very constraint devices with very limited capabilities, where the use of randomly generated SPI may prevent them to implement IPsec. 
-In this case the ability to provision nonrandom SPI enables these devices to secure their communications. 
+In this case the ability to provision nonrandom SPI enables these devices to secure their communications.
+For example, the SPI could be -at least partially - generated based on the SAD structure in memory which would simplify the implementation. 
 These devices, due to their limitations, are expected to provide limited information and how the use of nonrandom SPI impacts privacy requires further analysis. 
 Typically, temperature sensors, wind sensors, used outdoor do not leak privacy sensitive information. 
-When used indoor, privacy leakage outside the local network may be limited.</t>
+When used indoor, a sensor that reports every minute an encrypted status of the door (closed or opened) leaks truly little privacy sensitive information outside the local network. </t>
 
 <t>As far as security is concerned, revealing the type of application or model of the constraint device could be used to identify the vulnerabilities the constraint device is subject to. 
 This is especially sensitive for constraint devices where patches or software updates will be challenging to operate. 
@@ -197,10 +200,10 @@ Typically, constraint nodes using 802.15.4 Time Slotted Channel Hopping (TSCH), 
 
 The problem with regular sequence numbers is that you need to store them to stable storage every time you go sleep. 
 Storing the SA information (keys, SPIs etc) to the flash once after the creation of the SA can be done, as that is just one flash write per SA creation.
-Syncing sequence number to flash after every packet would quickly wear out the flash, and most likely also slow down the system greatly, as writing to flash is not that fast operation than reading from there.
-Note, that lots of these IoT devices wake up, do something, send few packets, and then go back to sleep. 
-They do have separete hardware that allows them to wake up after certain timeout, and most likely also timers that start running when the device was booted up, so they might have concept of time with certain granularity. 
-They might NOT have real time clocks or any information how their internal clock relates to real world clock, and their internal clocks/timers might not be very accurate, but they should be enough to know that each time they wake up their time is greater than what it was last time they woke up.
+Synchronizing sequence number to flash after every packet would quickly wear out the flash, and likely slow down the system greatly, as writing to flash is not as fast as reading.
+Note, that lots of these IoT devices are in a sleep state most of the time wake up and are only awake to perform a specific operation before going back to sleep. 
+They do have separate hardware that allows them to wake up after certain timeout, and most likely also timers that start running when the device was booted up, so they might have concept of time with certain granularity. 
+They might not have real time clocks or any information how their internal clock relates to real world clock, and their internal clocks/timers might not be very accurate, but they should be enough to know that each time they wake up their time is greater than what it was last time they woke up.
 Using time for SN would guarantee a strictly increasing function and avoid storing any additional values or context related to the SN. 
 When the use of a clock is considered, one should take care that packets associated to a given SA are not sent with the same time value.
 Note however that standard receivers are generally configured with incrementing counters and, if not appropriately configured, the use of a significantly larger SN may result in the packet out of the receiver's windows and that packet being discarded. </t>
@@ -209,9 +212,9 @@ Note however that standard receivers are generally configured with incrementing 
 As a result, in environment where out of order packets is not possible the window size can be set to
 one. 
 However, while RECOMMENDED, there is no requirements to implement an anti-replay protection mechanism implemented by IPsec. 
-If an IoT device such as a temperature sensor is sending a temperature every 60 seconds, the implementation of an anti replay mechanism requires the sensor to receive an acknowlegement for the receiver as well as storing an additional value across sleep time.
+If an IoT device such as a temperature sensor is sending a temperature every 60 seconds, the implementation of an anti-replay mechanism requires the sensor to receive an acknowledgment for the receiver as well as storing an additional value across sleep time.
 Such design is likely to be non optimal in term of limiting the number of read/write on a flash card as well as limiting the time the sensor needs to be awake.
-On the other hand, the impact provided by an anti replay mechanisms implemented on the sensor is very limited and unlikely to change the way of working of the sensor.
+On the other hand, the impact provided by an anti-replay mechanisms implemented on the sensor is very limited and unlikely to change the way of working of the sensor.
 A node MAY drop anti-replay protection provided by IPsec, and instead implement its own internal mechanism.</t> 
 
 <t>SN can be encoded over 32 bits or 64 bits - known as Extended Sequence Number (ESN). 
@@ -292,7 +295,7 @@ However, the same nodes may also be very specific to an application and device.
 As a result, they are also likely to be the main target for traffic shaping. 
 In most cases, the payload carried by these nodes is quite small, and the standard padding mechanism may also be used as an alternative to TFC, with a sufficient tradeoff between the require energy to send additional payload and the exposure to traffic shaping attacks. 
 In addition, the information leaked by the traffic shaping may also be addressed by the application level. 
-For example, it is preferred to have a sensor sending some information at regular time interval, rather when an specific event is happening. 
+For example, it is preferred to have a sensor sending some information at regular time interval, rather when a specific event is happening. 
 Typically, a sensor monitoring the temperature, or a door is expected to send regularly the information - i.e. the temperature of the room or whether the door is closed or open) instead of only sending the information when the temperature has raised or when the door is being opened. </t>
     
 </section>
@@ -428,7 +431,7 @@ To reduce the overall payload size one may, for example:
 <section anchor="sec-security-considerations" title="Security Considerations">
       
 <t> Security considerations are those of <xref target="RFC4303"/>. 
-In addition, this document provided security recommendations and guidance over the implementation choices for each fields.  </t>
+In addition, this document provided security recommendations and guidance over the implementation choices for each field.  </t>
 
 <t>The security of a communication provided by ESP is closely related to the security associated to the management of that key. 
 This usually include mechanisms to prevent a nonce to repeat for example.
