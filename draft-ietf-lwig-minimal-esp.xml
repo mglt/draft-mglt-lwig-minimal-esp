@@ -11,7 +11,7 @@
 <?rfc inline="yes"?>
 <?rfc docmapping="yes"?>
 
-<rfc category="info" docName="draft-ietf-lwig-minimal-esp-04" ipr="trust200902">
+<rfc category="info" docName="draft-ietf-lwig-minimal-esp-05" ipr="trust200902">
   <front>
     <title abbrev="Minimal ESP">Minimal ESP</title>
     <author surname="Migault" initials="D.M." fullname="Daniel Migault">
@@ -74,7 +74,9 @@ However, completeness of the IPsec suite as well as multipurpose scope of these 
 As a result, constrained devices are likely to have their own implementation of ESP optimized and adapted to their specificities such as limiting the number of flash writes (for each packet or across wake time), handling frequent wakeup and sleep state, limiting wakeup time, or reducing the use of random generation.
 With the adoption of IPsec by IoT devices with minimal IKEv2 <xref target="RFC7815"/> and ESP Header Compression (EHC) with <xref target="I-D.mglt-ipsecme-diet-esp"/> or <xref target="I-D.mglt-ipsecme-ikev2-diet-esp-extension"/>, it becomes crucial that ESP implementation designed for constrained devices remains inter-operable with the standard ESP implementation to avoid a fragmented usage of ESP. 
 This document describes the minimal properties an ESP implementation needs to meet to remain interoperable with <xref target="RFC4303"/> ESP. 
-In addition, this document also provides a set of options to implement these properties under certain constrained environments. </t>
+In addition, this document also provides a set of options to implement these properties under certain constrained environments.
+This document does not update or modify RFC 4303, but provides a compact description of how to implement the minimal version of the protocol. 
+RFC 4303 remains the authoritative description.  </t>
 
 <t> For each field of the ESP packet represented in <xref target="fig-esp-description"/> this document provides recommendations and guidance for minimal implementations. 
 The primary purpose of Minimal ESP is to remain interoperable with other nodes implementing RFC 4303 ESP, while limiting the standard complexity of the implementation.
