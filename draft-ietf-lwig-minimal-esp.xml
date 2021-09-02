@@ -43,10 +43,10 @@
     <workgroup>Light-Weight Implementation Guidance (lwig)</workgroup>
     <abstract>
       
-<t>This document describes a minimal implementation of the IP Encapsulation Security Payload (ESP) defined in RFC 4303. Its purpose is to enable implementation of ESP with a minimal set of options to remain compatible with ESP as described in RFC 4303. 
+<t>This document describes a minimal IP Encapsulation Security Payload (ESP) defined in RFC 4303. Its purpose is to enable implementation of ESP with a minimal set of options to remain compatible with ESP as described in RFC 4303. 
 A minimal version of ESP is not intended to become a replacement of the RFC 4303 ESP. 
 Instead, a minimal implementation is expected to be optimized for constrained environment while remaining interoperable with implementations of RFC 4303 ESP.
-Some constraints include limiting the number of flash writes, handling frequent wakeup / sleep states, limiting wakeup time, or reducing the use of random generation. </t>
+In addition, this document also provides some considerations to implement minimal ESP in a constrained environment which includes limiting the number of flash writes, handling frequent wakeup / sleep states, limiting wakeup time, or reducing the use of random generation. </t>
 
 <t> This document does not update or modify RFC 4303, but provides a compact description of how to implement the minimal version of the protocol. 
 RFC 4303 remains the authoritative description.  </t>
@@ -113,7 +113,7 @@ On the other hand, nodes supporting multicast communications must also use the I
 
 <t> For nodes supporting only unicast communications, it is recommended to index SA with the SPI only. 
 The index may be based on the full 32 bits of SPI or a subset of these bits. 
-Some other local constraints on the node may require a combination of the SPI as well as other parameters to index the SA.</t>
+The node may require a combination of the SPI as well as other parameters (like the IP address) to index the SA.</t>
 
 <t> Values 0-255 must not be used. 
 As per section 2.1 of <xref target="RFC4303"/>, values 1-255 are reserved and 0 is only allowed to be used internally and it must not be sent on the wire. </t>
@@ -160,7 +160,8 @@ In addition, the device or application may be associated with some vulnerabiliti
 </t>
 
 <t>
-While the use of randomly generated SPIs may reduce the leakage or privacy of security related information by ESP itself, these information may also be leaked otherwise and a privacy analysis should consider at least the type of information as well the traffic pattern. 
+While the use of randomly generated SPIs may reduce the leakage or privacy of security related information by ESP itself, these information may also be leaked otherwise. 
+As a result, a privacy analysis should consider at least the type of information as well the traffic pattern before determining non random SPI can be used. 
 Typically, temperature sensors, wind sensors, used outdoors do not leak privacy sensitive information and mosty of its traffic is expected to be outbound traffic. 
 When used indoors, a sensor that reports every minute an encrypted status of the door (closed or opened) leaks truly little privacy sensitive information outside the local network. </t>
 
