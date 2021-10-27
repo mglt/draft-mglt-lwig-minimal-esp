@@ -11,9 +11,9 @@
 <?rfc inline="yes"?>
 <?rfc docmapping="yes"?>
 
-<rfc category="info" docName="draft-ietf-lwig-minimal-esp-06" ipr="trust200902">
+<rfc category="info" docName="draft-ietf-lwig-minimal-esp-08" ipr="trust200902">
   <front>
-    <title abbrev="Minimal ESP">Minimal ESP</title>
+    <title abbrev="Minimal ESP">Minimal IP Encapsulating Security Payload (ESP)</title>
     <author surname="Migault" initials="D.M." fullname="Daniel Migault">
       <organization>Ericsson</organization>
       <address>
@@ -43,8 +43,10 @@
     <workgroup>Light-Weight Implementation Guidance (lwig)</workgroup>
     <abstract>
       
-<t>This document describes a minimal IP Encapsulation Security Payload (ESP) defined in RFC 4303. Its purpose is to enable implementation of ESP with a minimal set of options to remain compatible with ESP as described in RFC 4303. 
-A minimal version of ESP is not intended to become a replacement of the RFC 4303 ESP. 
+<t>
+This document describes the minimal properties IP Encapsulating Security Payload (ESP) implementation needs to meet to remain interoperable with the standard RFC4303 ESP. 
+<!-- This document describes a minimal IP Encapsulation Security Payload (ESP) defined in RFC 4303. Its purpose is to enable implementation of ESP with a minimal set of options to remain compatible with ESP as described in RFC 4303. -->
+Such a minimal version of ESP is not intended to become a replacement of the RFC 4303 ESP. 
 Instead, a minimal implementation is expected to be optimized for constrained environment while remaining interoperable with implementations of RFC 4303 ESP.
 In addition, this document also provides some considerations to implement minimal ESP in a constrained environment which includes limiting the number of flash writes, handling frequent wakeup / sleep states, limiting wakeup time, or reducing the use of random generation. </t>
 
@@ -111,7 +113,7 @@ The primary purpose of Minimal ESP is to remain interoperable with other nodes i
 From <xref target="RFC4301"/> section 4.1, nodes supporting only unicast communications can index their SA only using the SPI. 
 On the other hand, nodes supporting multicast communications must also use the IP addresses and thus SA lookup needs to be performed using the longest match.  </t>
 
-<t> For nodes supporting only unicast communications, it is recommended to index SA with the SPI only. 
+<t> For nodes supporting only unicast communications, this document recommends to index SA with the SPI only. 
 The index may be based on the full 32 bits of SPI or a subset of these bits. 
 The node may require a combination of the SPI as well as other parameters (like the IP address) to index the SA.</t>
 
@@ -162,8 +164,9 @@ In addition, the device or application may be associated with some vulnerabiliti
 <t>
 While the use of randomly generated SPIs may reduce the leakage or privacy of security related information by ESP itself, these information may also be leaked otherwise. 
 As a result, a privacy analysis should consider at least the type of information as well the traffic pattern before determining non random SPI can be used. 
-Typically, temperature sensors, wind sensors, used outdoors do not leak privacy sensitive information and mosty of its traffic is expected to be outbound traffic. 
-When used indoors, a sensor that reports every minute an encrypted status of the door (closed or opened) leaks truly little privacy sensitive information outside the local network. </t>
+Typically, temperature sensors, wind sensors, used outdoors may not leak privacy sensitive information and most of its traffic is expected to be outbound traffic. 
+When used indoors, a sensor that reports every minute an encrypted status of the door (closed or opened) may leak truly little privacy sensitive information outside the local network. 
+In both cases, if the state  of the sensor doesn't leak privacy info, a randomized SPI is not necessary. </t>
 
 
 
@@ -192,11 +195,12 @@ Storing information associated with the SA such as SN requires some read and wri
 Such operations are likely to wear out the flash, and slow down the system greatly, as writing to flash is not as fast as reading.
 Their internal clocks/timers might not be very accurate, but they should be enough to know that each time they wake up their time is greater than what it was last time they woke up.
 Using time for SN would guarantee a strictly increasing function and avoid storing any additional values or context related to the SN. 
-When the use of a clock is considered, one should take care that packets associated with a given SA are not sent with the same time value.
-Note however that standard receivers are generally configured with incrementing counters and, if not appropriately configured, the use of a significantly larger SN may result in the packet out of the receiver's windows and that packet being discarded. 
+<!--When the use of a clock is considered, one should take care that packets associated with a given SA are not sent with the same time value. -->
+Of course, one should only consider use of a clock to generate SNs if the application will inherently ensure that no two packets with a given SA are sent with the same time value. 
+Note however that standard receivers are generally configured with incrementing counters and, if not appropriately configured, the use of a significantly larger SN difference may result in the packet out of the receiver's windows and that packet being discarded. 
 </t>
 
-<t>For inbound traffic, it is recommended that any receiver provides anti-replay protection, and the size of the window depends on the ability of the network to deliver packets out of order. 
+<t>For inbound traffic, this document recommends that any receiver provides anti-replay protection, and the size of the window depends on the ability of the network to deliver packets out of order. 
 As a result, in an environment where out of order packets is not possible the window size can be set to one. 
 However, while recommended, there are no requirements to implement an anti-replay protection mechanism implemented by IPsec. 
 Similarly to the SN the implementation of anti replay protection may require the device to write the received SN for every packet, which may in some cases come with the same drawbacks as those exposed for SN. 
@@ -204,9 +208,9 @@ Similarly to the SN the implementation of anti replay protection may require the
 As a result, some implementations may drop a non required anti replay protection especially when the necessary resource involved overcomes the benefit of the mechanism. 
 These resources need also to balance that absence of anti-replay mechanism, may lead to unnecessary integrity check operations that might be significantly more expensive as well.  
 A typical example might consider an IoT device such as a temperature sensor that is sending a temperature every 60 seconds, and that receives an acknowledgment from the receiver. 
-In such cases, the ability to spoof and replay an acknowledgement is of limited interest and may not justify the implementation of an anti replay mechanism. 
+In such cases, the ability to spoof and replay an acknowledgement is of limited interest and might not justify the implementation of an anti replay mechanism. 
 
-Receiving peers may also implement their own anti-replay mechanism. 
+Receiving peers may also use ESP anti-replay mechanism adapted to a specific application. 
 Typically, when the sending peer is using SN based on time, anti-replay may be implemented by discarding any packets that present a SN whose value is too much in the past. 
 Note that such mechanisms may consider clock drifting in various ways in addition to acceptable delay induced by the network to avoid the anti replay windows rejecting legitimate packets.
 When a packet is received at a regular time interval, some variant of time based mechanisms may not even use the value of the SN, but instead only consider the receiving time of the packet.
@@ -220,7 +224,7 @@ However, when the SN is incremented differently - such as when time is used - th
 Note that the limit of messages being sent is primarily determined by the security associated with the key rather than the SN.
 The security of all data protected under a given key decreases slightly with each message and a node must ensure the limit is not reached - even though the SN would permit it. 
 Estimation of the maximum number of packets to be sent by a node is always challenging and as such should be considered cautiously as nodes could be online for much more time than expected. 
-Even for constrained devices, it is recommended to implement some rekey mechanisms (see <xref target="sec-security-considerations"/>). 
+Even for constrained devices, this document recommends to implement some rekey mechanisms (see <xref target="sec-security-considerations"/>). 
 </t>
 
 
@@ -243,7 +247,7 @@ TFC is not mandatory and must be negotiated with the SA management protocol.
 TFC has not yet being widely adopted for standard ESP traffic. 
 One possible reason is that it requires to shape the traffic according to one traffic pattern that needs to be maintained. 
 This is likely to require extra processing as well as providing a "well recognized" traffic shape which could end up being counterproductive. 
-As such, it is NOT recommended that minimal ESP implementation supports TFC.</t>
+As such, this document does not recommend that minimal ESP implementation supports TFC.</t>
 
 <t>As a result, TFC cannot be enabled with minimal ESP, and communication protection that were relying on TFC will be more sensitive to traffic shaping. 
 This could expose the application as well as the devices used to a passive monitoring attacker. 
@@ -268,7 +272,7 @@ In addition, the Next Header may also carry an indication on how to process the 
 
 <t> The ability to generate and receive dummy packets is required by <xref target="RFC4303"/>. 
 For interoperability, a minimal ESP implementation must discard dummy packets without indicating an error.
-Note that such recommendation only applies for nodes receiving packets, and that nodes designed to only send data may not implement this capability.  </t>
+Note that such recommendation only applies for nodes receiving packets, and that nodes designed to only send data might not implement this capability.  </t>
       
 <t> As the generation of dummy packets is subject to local management and based on a per-SA basis, a minimal ESP implementation may not generate such dummy packet.
 More especially, in constrained environment sending dummy packets may have too much impact on the device lifetime, and so may be avoided. 
@@ -314,7 +318,7 @@ In the latter case, authenticated encryption must always be considered <xref tar
 <t>Resilience to nonce re-use: Some transforms -including AES-GCM - are very sensitive to nonce collision with a given key. 
 While the generation of the nonce may prevent such collision during a session, the mechanisms are unlikely to provide such protection across reboot. 
 This causes an issue for devices that are configured with a key. 
-When the key is likely to be re-used across reboots, it is recommended to consider algorithms that are nonce misuse resistant such as, for example, AES-SIV <xref target="RFC5297"/>, AES-GCM-SIV <xref target="RFC8452"/> or Deoxys-II <xref target="DeoxysII"/>. 
+When the key is likely to be re-used across reboots, this document recommends to consider algorithms that are nonce misuse resistant such as, for example, AES-SIV <xref target="RFC5297"/>, AES-GCM-SIV <xref target="RFC8452"/> or Deoxys-II <xref target="DeoxysII"/>. 
 Note however that currently none of them has yet been defined for ESP. </t>
 
 <t> Interoperability:  Interoperability considers the encryption algorithm transforms shared with the other nodes. 
@@ -365,7 +369,7 @@ This usually includes mechanisms to prevent a nonce from repeating, for example.
 When a node is provisioned with a session key that is used across reboot, the implementer must ensure that the mechanisms put in place remain valid across reboot as well. 
 </t>
 
-<t>It is recommended to use ESP in conjunction with key management protocols such as for example IKEv2 <xref target="RFC7296"/> or minimal IKEv2 <xref target="RFC7815"/>.
+<t>This document recommends to use ESP in conjunction with key management protocols such as for example IKEv2 <xref target="RFC7296"/> or minimal IKEv2 <xref target="RFC7815"/>.
 Such mechanisms are responsible for negotiating fresh session keys as well as prevent a session key being use beyond its lifetime.
 
 When such mechanisms cannot be implemented and the session key is, for example, provisioned, the nodes must ensure that keys are not used beyond their lifetime and that the appropriate use of the key remains across reboots - e.g. conditions on counters and nonces remains valid. 
@@ -378,7 +382,7 @@ When such mechanisms cannot be implemented and the session key is, for example, 
     
 <section title="Acknowledgment">
       
-<t> The authors would like to thank Daniel Palomares, Scott Fluhrer, Tero Kivinen, Valery Smyslov, Yoav Nir, Michael Richardson, Thomas Peyrin and Eric Thormarker for their valuable comments.  
+<t> The authors would like to thank Daniel Palomares, Scott Fluhrer, Tero Kivinen, Valery Smyslov, Yoav Nir, Michael Richardson, Thomas Peyrin, Eric Thormarker, Nancy Cam-Winget and Bob Briscoe for their valuable comments.  
 In particular Scott Fluhrer suggested to include the rekey index in the SPI.
 Tero Kivinen provided also multiple clarifications and examples of deployment ESP within constrained devices with their associated optimizations. 
 Thomas Peyrin Eric Thormarker and Scott Fluhrer suggested and clarified the use of transform resilient to nonce misuse.
