@@ -32,7 +32,6 @@
           <street>MNM-Team</street>
           <street>Oettingenstr. 67</street>
           <city>80538 Munich</city>
-          <region>Bavaria</region>
           <country>Germany</country>
         </postal>
         <email>guggemos@mnm-team.org</email>
@@ -44,14 +43,14 @@
     <abstract>
       
 <t>
-This document describes the minimal properties IP Encapsulating Security Payload (ESP) implementation needs to meet to remain interoperable with the standard RFC4303 ESP. 
+This document describes the minimal properties that an IP Encapsulating Security Payload (ESP) implementation needs to meet to remain interoperable with the standard RFC4303 ESP. 
 <!-- This document describes a minimal IP Encapsulation Security Payload (ESP) defined in RFC 4303. Its purpose is to enable implementation of ESP with a minimal set of options to remain compatible with ESP as described in RFC 4303. -->
 Such a minimal version of ESP is not intended to become a replacement of the RFC 4303 ESP. 
-Instead, a minimal implementation is expected to be optimized for constrained environment while remaining interoperable with implementations of RFC 4303 ESP.
-In addition, this document also provides some considerations to implement minimal ESP in a constrained environment which includes limiting the number of flash writes, handling frequent wakeup / sleep states, limiting wakeup time, or reducing the use of random generation. </t>
+Instead, a minimal implementation is expected to be optimized for constrained environments while remaining interoperable with implementations of RFC 4303 ESP.
+In addition, this document also provides some considerations for implementing minimal ESP in a constrained environment which includes limiting the number of flash writes, handling frequent wakeup / sleep states, limiting wakeup time, and reducing the use of random generation. </t>
 
-<t> This document does not update or modify RFC 4303, but provides a compact description of how to implement the minimal version of the protocol. 
-RFC 4303 remains the authoritative description.  </t>
+<t> This document does not update or modify RFC 4303. It provides a compact description of how to implement the minimal version of that protocol. 
+RFC 4303 remains the authoritative description.</t>
 
 </abstract>
 </front>
@@ -60,25 +59,23 @@ RFC 4303 remains the authoritative description.  </t>
 
 <section title="Requirements notation">
 
-<t>The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this document are to be interpreted as described in <xref target="RFC2119"/>.</t>
+<t>The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED", "MAY", and "OPTIONAL" in this document are to be interpreted as described in BCP 14 <xref target="RFC2119"/> <xref target="RFC8174"/> when, and only when, they appear in all capitals, as shown here.</t>
 
 </section>
 
 <section title="Introduction">
       
 <t>ESP <xref target="RFC4303"/>  is part of the IPsec protocol suite <xref target="RFC4301"/>. 
-IPsec is used to provide confidentiality, data origin authentication, connectionless integrity, an anti-replay service (a form of partial sequence integrity) and limited traffic flow confidentiality (TFC) padding.</t>
+IPsec is used to provide confidentiality, data origin authentication, connectionless integrity, an anti-replay service and limited traffic flow confidentiality (TFC) padding.</t>
 
 <t><xref target="fig-esp-description"/> describes an ESP Packet.
-Currently, ESP is implemented in the kernel of major multipurpose Operating Systems (OS). 
-The ESP and IPsec suite is usually implemented in a complete way to fit multiple purpose usage of these OSes. 
-However, completeness of the IPsec suite as well as multipurpose scope of these OSes is often performed at the expense of resources, or performance. 
-As a result, constrained devices are likely to have their own implementation of ESP optimized and adapted to their specificities such as limiting the number of flash writes (for each packet or across wake time), handling frequent wakeup and sleep state, limiting wakeup time, or reducing the use of random generation.
-With the adoption of IPsec by IoT devices with minimal IKEv2 <xref target="RFC7815"/> and ESP Header Compression (EHC) with <xref target="I-D.mglt-ipsecme-diet-esp"/> or <xref target="I-D.mglt-ipsecme-ikev2-diet-esp-extension"/>, it becomes crucial that ESP implementation designed for constrained devices remain inter-operable with the standard ESP implementation to avoid a fragmented usage of ESP. 
+Currently, ESP is implemented in the kernel of most major multipurpose Operating Systems (OS). 
+ESP is usually implemented with all of its features to fit the multiple purpose usage of these OSes, at the expense of resources and with no considerations for code size.
+Constrained devices are likely to have their own implementation of ESP optimized and adapted to their specific use, such as limiting the number of flash writes (for each packet or across wake time), handling frequent wakeup and sleep state, limiting wakeup time, and reducing the use of random generation.
+With the adoption of IPsec by IoT devices with minimal IKEv2 <xref target="RFC7815"/> and ESP Header Compression (EHC) with <xref target="I-D.mglt-ipsecme-diet-esp"/> or <xref target="I-D.mglt-ipsecme-ikev2-diet-esp-extension"/>, these ESP implementations MUST remain interoperable with standard ESP implementations.
 This document describes the minimal properties an ESP implementation needs to meet to remain interoperable with <xref target="RFC4303"/> ESP. 
-In addition, this document also provides a set of options to implement these properties under certain constrained environments.
-This document does not update or modify RFC 4303, but provides a compact description of how to implement the minimal version of the protocol. 
-RFC 4303 remains the authoritative description.  </t>
+In addition, this document also provides advise to implementers for implementing ESP within constrained environments.
+This document does not update or modify RFC 4303.</t>
 
 <t> For each field of the ESP packet represented in <xref target="fig-esp-description"/> this document provides recommendations and guidance for minimal implementations. 
 The primary purpose of Minimal ESP is to remain interoperable with other nodes implementing RFC 4303 ESP, while limiting the standard complexity of the implementation.
@@ -113,67 +110,66 @@ The primary purpose of Minimal ESP is to remain interoperable with other nodes i
 <section anchor="sec-spi" title="Security Parameter Index (SPI) (32 bit)">
 
 <!-- what is the spi / definition -->
-<t> According to the <xref target="RFC4303"/>, the SPI is a mandatory 32 bits field and is not allowed to be removed.  </t>
+<t> <xref target="RFC4303"/> defines the SPI as a mandatory 32 bits field.  </t>
 
 <t> The SPI has a local significance to index the Security Association (SA). 
-From <xref target="RFC4301"/> section 4.1, nodes supporting only unicast communications can index their SA only using the SPI. 
-On the other hand, nodes supporting multicast communications must also use the IP addresses and thus SA lookup needs to be performed using the longest match.  </t>
+From <xref target="RFC4301"/> section 4.1, nodes supporting only unicast communications can index their SA using only the SPI. 
+Nodes supporting multicast communications also require to use the IP addresses and thus SA lookup need to be performed using the longest match.  </t>
 
-<t> For nodes supporting only unicast communications, this document recommends indexing SA with the SPI only. 
+<t> For nodes supporting only unicast communications, this document recommends indexing the SA using only the SPI. 
 The index may be based on the full 32 bits of SPI or a subset of these bits. 
 The node may require a combination of the SPI as well as other parameters (like the IP address) to index the SA.</t>
 
 <t> Values 0-255 must not be used. 
-As per section 2.1 of <xref target="RFC4303"/>, values 1-255 are reserved and 0 is only allowed to be used internally and it must not be sent on the wire. </t>
+As per section 2.1 of <xref target="RFC4303"/>, values 1-255 are reserved and 0 is only allowed to be used internally and it MUST NOT be sent over the wire. </t>
 
 <!-- generation of the spi -->
 
-<t> <xref target="RFC4303"/> does not require the SPI to be randomly generated over 32 bits.
-However, this is the recommended way to generate SPIs as it provides some privacy benefits and avoids, for example, correlation between ESP communications. 
-To randomly generate a 32 bit SPI, the node generates a random 32 bit value and checks it does not fall in the 0-255 range. 
-If the SPI has an acceptable value, it is used to index the inbound session, otherwise the SPI is re-generated until an acceptable value is found. 
+<t> <xref target="RFC4303"/> does not require the 32 bit SPI to be randomly generated, although that is the recommended way to generate SPIs as it provides some privacy and security benefits and avoids correlation between ESP communications. 
+To obtain a usable random 32 bit SPI, the node generates a random 32 bit value and checks it does not fall within the 0-255 range. 
+If the SPI has an acceptable value, it is used to index the inbound session.
+Otherwise the generated value is discarded and the process repeats until a valid value is found. 
 </t>
 
-<t>However, some constrained nodes may be less concerned by the privacy properties associated to SPIs randomly generated. 
-Examples of such nodes might include sensors looking to reduce their code complexity, in which case the use of a predictive function to generate the SPI might be preferred over the generation and handling of random values. 
-An example of such predictable function may consider the combination of a fixed value and the memory address of the SAD structure. 
-For every incoming packet, the node will be able to point the SAD structure directly from the SPI value. 
-This avoids having a separate and additional binding between SPI and SAD entries that is involved for every incoming packet. 
+<t>Some constrained devies are less concerned with the privacy properties associated to randomly generated SPIs.
+Examples of such devices might include sensors looking to reduce their code complexity.
+The use of a predictive function to generate the SPI might be preferred over the generation and handling of random values. 
+An implementation of such predictable function could use the combination of a fixed value and the memory address of the SAD structure. 
+For every incoming packet, the node will be able to point to the SAD structure directly from the SPI value. 
+This avoids having a separate and additional binding and lookup function for the SPI to its SAD entry for every incoming packet. 
 </t>
 
 <!-- privacy / security implication for non random SPIs -->
 
 <section title="Considerations over SPI generation">
 
-<t>SPI that are not randomly generated over 32 bits may lead to privacy and security concerns. 
+<t>SPIs that are not randomly generated over 32 bits may have privacy and security concerns. 
 As a result, the use of alternative designs requires careful security and privacy reviews. 
 This section provides some considerations upon the adoption of alternative designs. </t>
 
-<t>Note that SPI value is used only for inbound traffic, as such the SPI negotiated with IKEv2 <xref target="RFC7296"/> or <xref target="RFC7815"/> by a peer, is the value used by the remote peer when it sends traffic. 
-As SPI is only used for inbound traffic by the peer, this allows each peer to manage the set of SPIs used for its inbound traffic. 
-Similarly, the privacy concerns associated with the generation of non random SPI is also limited to the incoming traffic.</t>
+<t>The SPI value is only looked up for inbound traffic.
+The SPI negotiated with IKEv2 <xref target="RFC7296"/> or Minimal IKEv2 <xref target="RFC7815"/> by a peer is the value used by the remote peer when it sends traffic. 
+As the SPI is only used for inbound traffic by the peer, this allows each peer to manage the set of SPIs used for its inbound traffic. 
+Similarly, the privacy concerns associated with the generation of non-random SPIs is also limited to the incoming traffic.</t>
 
-<t>When alternate designs are considered, it is likely that the number of possible SPIs will be limited. 
-This limit should both consider the number of inbound SAs - possibly per IP addresses - as well as the ability for the node to rekey. 
-SPI can typically be used to implement a key update with the SPI indicating the key is being used. 
-For example, a SPI might be encoded with the Security Association Database (SAD) entry on a subset of bytes (for example 3 bytes), while the remaining byte indicates the rekey index. 
+<t>Alternate designs that take less resources than fully random SPI's are likely using a limited list of possible SPIs.
+This limit should take into account the number of inbound SAs - possibly per IP addresses - as well as the requirement for rekeying which would briefly require 2 inbound SPIs to co-exist as the new SA is setup before the old SA is torn down.
+SPI numbers can be used to implement tracking the inbound SAs when rekeying is taking place. When rekeying a SPI, the new SPI could use the SPI bytes to indicate the rekeying index. 
+For example, a SPI might be encoded with the Security Association Database (SAD) numerical [Paul?] entry on a subset of 3 bytes, with the remaining byte indicating the rekey index.
 </t>
 
-
-<t>The use of a smaller number of SPIs across communications comes with privacy and security concerns.
-Typically, some specific values or subset of SPI values may reveal the models or manufacturer of the node implementing ESP. 
-This may raise some privacy issues as an observer is likely to be able to determine the constrained devices of the network. 
-In some cases, these nodes may host a very limited number of applications - typically a single application - in which case the SPI would provide some information related to the application of the user. 
-In addition, the device or application may be associated with some vulnerabilities, in which case specific SPI values may be used by an attacker to discover vulnerabilities. 
+<t>The use of a small limited set of SPI numbers across communications comes with privacy and security concerns.
+Some specific values or subset of SPI values could reveal the models or manufacturer of the node implementing ESP. It could also reveal some state such as "not yet rekeyed" or "rekeyed 10 times".
+If a constrained host uses a very limited or even just one application, the SPI itself could indicate what kind of traffic (eg the kind of application typically running) is transmitted. This could be further correlated by encrypted data size to further leak information to an observer on the network.
+In addition, use of specific hardcoded SPI numbers could reveal a manufacturor or device version. If updated devices use different SPI numbers, an attacker could locate vulnerable devices by their use of specific SPI numbers.
 </t>
 
 <t>
-While the use of randomly generated SPIs may reduce the leakage or privacy of security related information by ESP itself, these pieces of information may also be leaked otherwise. 
-As a result, a privacy analysis should consider at least the type of information as well the traffic pattern before determining a non random SPI can be used. 
-Typically, temperature sensors, wind sensors, used outdoors may not leak privacy sensitive information and most of its traffic is expected to be outbound traffic. 
-When used indoors, a sensor that reports every minute an encrypted status of the door (closed or opened) may leak truly little privacy sensitive information outside the local network. 
-In these examples, the privacy aspect of the information itself might be limited. Being able to determine the version of the sensor to potentially take control of it may also have some limited security consequences. Of course this depends on the context these sensors are being used. If the risks associated to privacy and security are acceptable, a randomized SPI is not necessary. In any case, for such constrained sensors, it remains better to have secure communications with non random SPI as opposed to no security.</t> 
-
+A privacy analysis should consider at least the type of information as well the traffic pattern before deciding whether  non-random SPIs are safe to use.
+Typically temperature sensors, wind sensors, used outdoors may not leak privacy sensitive information and most of its traffic is expected to be outbound traffic. 
+When used indoors, a sensor that reports an encrypted status of a door (closed or opened) every minute, might not leak sensitive information outside the local network. 
+In these examples, the privacy aspect of the information itself might be limited. Being able to determine the version of the sensor to potentially take control of it may also have some limited security consequences. Of course this depends on the context these sensors are being used. If the risks associated to privacy and security are acceptable, a non-randomized SPI can be used. 
+</t>
 
 
 </section>
@@ -182,54 +178,56 @@ In these examples, the privacy aspect of the information itself might be limited
     
 <section anchor="sec-sn" title="Sequence Number(SN) (32 bit)">
       
-<t> According to  <xref target="RFC4303"/>, the Sequence Number (SN) is a mandatory 32 bits field in the packet.  </t>
+<t> The Sequence Number (SN) in <xref target="RFC4303"/> is a mandatory 32 bits field in the packet.  </t>
 
 <t> The SN is set by the sender so the receiver can implement anti-replay protection. 
-The SN is derived from any strictly increasing function that guarantees: if packet B is sent after packet A, then SN of packet B is strictly greater than the SN of packet A.  </t>
+The SN is derived from any strictly increasing function that guarantees: if packet B is sent after packet A, then SN of packet B is higher than the SN of packet A.  </t>
 
-<t>Some constrained devices may establish communication with specific devices, like a specific gateway, or nodes similar to them. 
-As a result, the sender may know whether the receiver implements anti-replay protection or not. 
-Even though the sender may know the receiver does not implement anti-replay protection, the sender must implement an always increasing function to generate the SN.  </t> 
+<t>Some constrained devices may establish communication with specific devices where it is known whether or not the peer implements anti-replay protection.
+As per <xref target="RFC4303"/>, the sender MUST still implement a strictly increasing function to generate the SN.  </t> 
 
 <t>Usually, SN is generated by incrementing a counter for each packet sent. 
-A constrained device may avoid maintaining this context and use another source that is known to always increase. 
-Typically, constrained nodes using 802.15.4 Time Slotted Channel Hopping (TSCH), whose communication is heavily dependent on time, can take advantage of their clock to generate the SN. 
-A lot of IoT devices are in a sleep state most of the time wake up and are only awake to perform a specific operation before going back to sleep. 
-They do have separate hardware that allows them to wake up after a certain timeout, and most likely also timers that start running when the device was booted up, so they might have a concept of time with certain granularity. 
+A constrained device may avoid maintaining this context and use another source that is known to always increase.
+Typically, constrained devices use 802.15.4 Time Slotted Channel Hopping (TSCH).
+This communication is heavily dependent on time.
+A contrained device can take advantage of this clock mechanism to generate the SN. 
+A lot of IoT devices are in a sleep state most of the time and wake up only to perform a specific operation before going back to sleep. 
+These devices do have separate hardware that allows them to wake up after a certain timeout and typically also timers that start running when the device was booted up, so they might have a concept of time with certain granularity. 
 This requires to store any information in a stable storage - such as flash memory - that can be restored across sleeps.
-Storing information associated with the SA such as SN requires some read and writing operation on a stable storage after each packet is sent as opposed to SPI or keys that are only written at the creation of the SA.
-Such operations are likely to wear out the flash, and slow down the system greatly, as writing to flash is not as fast as reading.
-Their internal clocks/timers might not be very accurate, but they should be enough to know that each time they wake up their time is greater than what it was last time they woke up.
-Using time for SN would guarantee a strictly increasing function and avoid storing any additional values or context related to the SN. 
-<!--When the use of a clock is considered, one should take care that packets associated with a given SA are not sent with the same time value. -->
-Of course, one should only consider use of a clock to generate SNs if the application will inherently ensure that no two packets with a given SA are sent with the same time value. 
-Note however that standard receivers are generally configured with incrementing counters and, if not appropriately configured, the use of a significantly larger SN difference may result in the packet out of the receiver's windows and that packet being discarded. 
+Storing information associated with the SA such as SN requires some read and write operation on a stable storage after each packet is sent as opposed to a SPI number or cryptographic keys that are only written to stable storage at the creation of the SA.
+Write operations wear out the flash storage.
+Write operations also slow down the system significantly, as writing to flash is much slower than reading from flash.
+While these devices have internal clocks or timers that might not be very accurate, these are good enough to guarantee that each time the device wakes up from sleep that their time is greater than what it was before the device went to sleep.
+Using time for the SN would guarantee a strictly increasing function and avoid storing any additional values or context related to the SN on flash.
+In addition to the time value, a RAM based counter can be used to ensure that if the device sends multiple packets over an SA within one wake up period, that the serial numbers are still increasing and unique.
+Note that standard receivers are generally configured with incrementing counters and, if not appropriately configured, the use of a significantly larger SN than the previous packet can result in that packet falling outside of the peer's receiver window which could cause that packet to be discarded. 
 </t>
 
-<t>For inbound traffic, this document recommends that receivers implements anti-replay protection, and the size of the window depends on the ability of the network to deliver packets out of order. 
-As a result, in an environment where out of order packets is not possible the window size can be set to one. 
-However, while recommended, there are no requirements to implement an anti-replay protection mechanism implemented by IPsec. 
-Similarly to the SN the implementation of anti replay protection may require the device to write the received SN for every packet, which may in some cases come with the same drawbacks as those exposed for SN. 
-
-As a result, some implementations may drop a non required anti replay protection especially when the necessary resource involved overcomes the benefit of the mechanism. 
-These resources need also to balance that absence of anti-replay mechanism, may lead to unnecessary integrity check operations that might be significantly more expensive as well.  
+<t>For inbound traffic, this document recommends that receivers implement anti-replay protection.
+The size of the window should depend on the property of the network to deliver packets out of order. 
+In an environment where out of order packets are not possible, the window size can be set to one. 
+An ESP implementation may choose to not implement an anti-replay protection.
+An implementation of anti-replay protection may require the device to write the received SN for every packet to stable storage.
+This will have the same issues as discussed earlier with the SN.
+Some constrained device implementations may choose to not implement the optional anti-replay protection.
 A typical example might consider an IoT device such as a temperature sensor that is sending a temperature measurement every 60 seconds, and that receives an acknowledgment from the receiver. 
-In such cases, the ability to spoof and replay an acknowledgement is of limited interest and might not justify the implementation of an anti replay mechanism. 
-
-Receiving peers may also use ESP anti-replay mechanism adapted to a specific application. 
+In such cases, the ability to spoof and replay an acknowledgement is of limited interest and might not justify the implementation of an anti-replay mechanism.
+Receiving peers may also use ESP anti-replay mechanism adapted to a specific application. [Paul ????]
 Typically, when the sending peer is using SN based on time, anti-replay may be implemented by discarding any packets that present a SN whose value is too much in the past. 
-Note that such mechanisms may consider clock drifting in various ways in addition to acceptable delay induced by the network to avoid the anti replay windows rejecting legitimate packets.
-When a packet is received at a regular time interval, some variant of time based mechanisms may not even use the value of the SN, but instead only consider the receiving time of the packet.
+Such mechanisms may consider clock drifting in various ways in addition to acceptable delay induced by the network to avoid the anti replay windows rejecting legitimate packets.
+It could accept any SN as long as it is higher than the previously received SN.
+Another mechanism could be used where only the received time on the device is used to consider a packet as valid, without looking at the SN at all.
 </t>
 
-<t>SN can be encoded over 32 bits or 64 bits - known as Extended Sequence Number (ESN). 
-As per <xref target="RFC4303"/>, the support of ESN is not mandatory. 
-The determination of the use of ESN is based on the largest possible value a SN can take over a session. 
-When SN is incremented for each packet, the number of packets sent over the lifetime of a session may be considered. 
-However, when the SN is incremented differently - such as when time is used - the maximum value SN needs to be considered instead.   
-Note that the limit of messages being sent is primarily determined by the security associated with the key rather than the SN.
+<t>The SN can be represented as a 32 bit number, or as a 64 bit number, known as Extended Sequence Number (ESN). 
+As per <xref target="RFC4303"/>, support of ESN is not mandatory and its use is negotiated via IKEv2 <xref target="RFC7296"/>.A
+ESN is used for high speed links to ensure there can be more than 2^32 packets before the SA needs to be rekeyed to prevent
+the SN from rolling over.
+This assumes the SN is incremented by 1 for each packet.
+When the SN is incremented differently - such as when time is used - rekeying needs to happen based on how the SN is incremented
+to prevent the SN from rolling over.
 The security of all data protected under a given key decreases slightly with each message and a node must ensure the limit is not reached - even though the SN would permit it. 
-Estimation of the maximum number of packets to be sent by a node is always challenging and as such should be considered cautiously as nodes could be online for much more time than expected. 
+Estimation of the maximum number of packets to be sent by a node is not always predicatable and large margins should be used espcially as nodes could be online for much more time than expected. 
 Even for constrained devices, this document recommends implementing some rekey mechanisms (see <xref target="sec-security-considerations"/>). 
 </t>
 
@@ -238,53 +236,53 @@ Even for constrained devices, this document recommends implementing some rekey m
     
 <section anchor="sec-padding" title="Padding">
       
-<t> The purpose of padding is to respect the 32 bit alignment of ESP or block size expected by an encryption transform - such as AES-CBC for example.
-ESP must have at least one padding byte Pad Length that indicates the padding length. 
-ESP padding bytes are generated by a succession of unsigned bytes starting with 1, 2, 3 with the last byte set to Pad Length, where Pad Length designates the length of the padding bytes.
+<t> Padding is required to keep the 32 bit alignment of ESP.
+It is also required for some encryption transforms that need a specific block size of input, such as ENCR_AES_CBC.
+ESP specifies padding in the Pad Length byte, followed by up to 255 bytes of padding.
 </t>
 
-<t> Checking the padding structure is not mandatory, so the constrained device may omit such checks, however, in order to interoperate with existing ESP implementations, it must build the padding bytes as recommended by ESP.  </t>
+<t> Checking the padding structure is not mandatory, so constrained devices may omit these checks on received ESP packets.
+For outgoing ESP packets, padding must be applied as required by ESP.  </t>
 
 <t> In some situation the padding bytes may take a fixed value.
 This would typically be the case when the Data Payload is of fixed size.  </t>
 
-<t>ESP <xref target="RFC4303"/> also provides Traffic Flow Confidentiality (TFC) as a way to perform padding to hide traffic characteristics, which differs from respecting a 32 bit alignment. 
-TFC is not mandatory and must be negotiated with the SA management protocol.
-TFC has not been widely adopted for standard ESP traffic. 
-One possible reason is that it requires to shape the traffic according to one traffic pattern that needs to be maintained. 
-This is likely to require extra processing as well as providing a "well recognized" traffic shape which could end up being counterproductive. 
-As such, this document does not recommend that minimal ESP implementation supports TFC.</t>
+<t>ESP <xref target="RFC4303"/> additionally provides Traffic Flow Confidentiality (TFC) as a way to perform padding to hide traffic characteristics.
+TFC is not mandatory and is be negotiated with the SA management protocol, such as IKEv2.
+TFC has been widely implemented but it is not widely deployed for ESP traffic. 
+This document recommends that minimal ESP implementations do not implement TFC.</t>
 
-<t>As a result, communication protection that was relying on TFC will be more sensitive to traffic shaping. 
-This could expose the application as well as the devices used to a passive monitoring attacker. 
-Such information could be used by the attacker in case a vulnerability is disclosed on the specific device. 
-In addition, some application use - such as health applications - may also reveal important privacy oriented information.</t>
+<t>Communication protection that relies on TFC would be more sensitive to traffic shaping without TFC.
+This can leak application information as well as the manifacturor or model of the device used to a passive monitoring attacker. 
+Such information can be used by the attacker in case a vulnerability is known for the specific device or application.
+In addition, some application use - such as health applications - could leak important privacy oriented information.</t>
 
-<t>Some constrained nodes that have limited battery lifetime may also prefer avoiding sending extra padding bytes. 
-However, the same nodes may also be very specific to an application and device. 
-As a result, they are also likely to be the main target for traffic shaping. 
-In most cases, the payload carried by these nodes is quite small, and the standard padding mechanism may also be used as an alternative to TFC, with a sufficient tradeoff between the required energy to send additional payload and the exposure to traffic shaping attacks. 
-In addition, the information leaked by the traffic shaping may also be addressed by the application level. 
-For example, it is preferred to have a sensor sending some information at regular time interval, rather than when a specific event is happening. 
-Typically, a sensor monitoring the temperature, or a door is expected to send regularly the information - i.e. the temperature of the room or whether the door is closed or open) instead of only sending the information when the temperature has raised or when the door is being opened. </t>
-    
+<t>Constrained devices that have limited battery lifetime may prefer to avoid sending extra padding bytes. 
+In most cases, the payload carried by these devices is quite small, and the standard padding mechanism can be used as an alternative to TFC.
+Alternatively, any information leak based on the size - or presence - of the packet can also be addressed at the application level, before the packet is encrypted with ESP.
+If application packets vary between 1 to 30 bytes, the application could always send 32 byte responses to ensure all traffic sent is of identical length.
+To prevent leaking information that a sensor changed state, such as "temperature changed" or "door opened", an application could send this information at regular time interval, rather than when a specific event is happening, even if the sensor state did not change.
+</t>    
 </section>
     
-<section anchor="sec-nh" title="Next Header (8 bit)">
+<section anchor="sec-nh" title="Next Header (8 bit) and Dummy Packets">
 
-<t>According to <xref target="RFC4303"/>, the Next Header is a mandatory 8 bits field in the packet. 
-Next header specifies the data contained in the payload as well as dummy packet, i.e. packets with the Next Header with a value 59 meaning "no next header". 
-In addition, the Next Header may also carry an indication on how to process the packet <xref target="I-D.nikander-esp-beet-mode"/>.  </t>
+<t>ESP <xref target="RFC4303"/> defines the Next Header as a mandatory 8 bits field in the packet. 
+The Next header, only visible after decryption, specifies the data contained in the payload.
+In addition, the Next Header may also carry an indication on how to process the packet <xref target="I-D.nikander-esp-beet-mode"/>.
+The Next Header can point to a dummy packet, i.e. packets with the Next Header value set to 59 meaning "no next header". 
+The data following to "no next header" is dummy data - unstructured random bytes that appear like real encrypted data.
+</t>
 
-<t> The ability to generate and receive dummy packets is required by <xref target="RFC4303"/>. 
-For interoperability, a minimal ESP implementation must discard dummy packets without indicating an error.
-Note that such recommendation only applies for nodes receiving packets, and that nodes designed to only send data might not implement this capability.  </t>
+<t> The ability to generate and to receive and ignore dummy packets is required by <xref target="RFC4303"/>.
+An implementation can omit ever generating and sending dummy packets.
+For interoperability, a minimal ESP implementation must process and discard dummy packets without indicating an error.
+</t>
       
-<t> As the generation of dummy packets is subject to local management and based on a per-SA basis, a minimal ESP implementation may not generate such dummy packet.
-Specifically, in constrained environment sending dummy packets may have too much impact on the device lifetime, and should be avoided. 
-On the other hand, constrained nodes may be dedicated to specific applications, in which case, traffic pattern may expose the application or the type of node. 
-For these nodes, not sending dummy packet may have some privacy implication that needs to be measured. 
-However, for the same reasons exposed in <xref target="sec-padding"/> traffic shaping at the IPsec layer may also introduce some traffic pattern, and on constrained devices the application is probably the most appropriated layer to limit the risk of leaking information by traffic shaping.</t>
+<t>
+In constrained environments, sending dummy packets may have too much impact on the device lifetime, in which case dummy packets should not be generated and sent.
+Constrained devices running specific applications that would leak too much information by not generating and sending dummy packets could implement this functionality instead at the application layer.
+</t>
       
 <t> In some cases, devices are dedicated to a single application or a single transport protocol, in which case, the Next Header has a fixed value.</t> 
 
@@ -296,20 +294,17 @@ As a result, it should not be part of a minimal implementation of ESP.  </t>
 <section anchor="sec-icv" title="ICV">
       
 <t>The ICV depends on the cryptographic suite used.
-Currently, <xref target="RFC8221"/> only recommends cryptographic suites with an ICV which makes the ICV a mandatory field.  </t>
-
-<t> As detailed in <xref target="RFC8221"/> authentication or authenticated encryption are recommended and as such the ICV field must be present with a size different from zero. 
+As detailed in <xref target="RFC8221"/> authentication or authenticated encryption are recommended and as such the ICV field must be present with a size different from zero. 
 Its length is defined by the security recommendations only.  </t>
 
 </section>
 
 <section anchor="sec-encr" title="Cryptographic Suites">
       
-<t> The cryptographic suites implemented are an important component of ESP. 
-The recommended algorithms to use are expected to evolve over time and implementers should follow the recommendations provided by <xref target="RFC8221"/> and updates. 
+<t> The recommended algorithms to use are expected to evolve over time and implementers should follow the recommendations provided by <xref target="RFC8221"/> and updates. 
 </t>
 
-<t> This section lists some of the criteria that may be considered to select the appropriate cryptographic suite. 
+<t> This section lists some of the criteria that may be considered to select an appropriate cryptographic suite. 
 The list is not expected to be exhaustive and may also evolve over time: </t> 
      
 <t><list style="numbers">
@@ -317,29 +312,29 @@ The list is not expected to be exhaustive and may also evolve over time: </t>
 <t> Security: Security is the criteria that should be considered first for the selection of encryption algorithm transform. 
 The security of encryption algorithm transforms is expected to evolve over time, and it is of primary importance to follow up-to-date security guidance and recommendations.  
 The chosen encryption algorithm must not be vulnerable or weak (see <xref target="RFC8221"/> for outdated ciphers). 
-ESP can be used to authenticate only or to encrypt the communication. 
-In the latter case, authenticated encryption is RECOMMENDED <xref target="RFC8221"/>.</t>
+ESP can be used to authenticate only (ENCR_NULL) or to encrypt the communication. 
+In the latter case, authenticated encryption (AEAD) is RECOMMENDED <xref target="RFC8221"/>.</t>
 
-<t>Resilience to nonce re-use: Some transforms -including AES-GCM - are very sensitive to nonce collision with a given key. 
-While the generation of the nonce may prevent such collision during a session, the mechanisms are unlikely to provide such protection across reboot. 
-This causes an issue for devices that are configured with a key. 
+<t>Resilience to nonce re-use: Some transforms -including AES-GCM - are vulnerable to nonce collision with a given key. 
+While the generation of the nonce may prevent such collision during a session, the mechanisms are unlikely to provide such protection across sleep states or reboot. 
+This causes an issue for devices that are configured using static keys (called manual keying) and manual keying should not be used with these encryption algorithms.
 When the key is likely to be re-used across reboots, algorithms that are nonce misuse resistant such as, for example, AES-SIV <xref target="RFC5297"/>, AES-GCM-SIV <xref target="RFC8452"/> or Deoxys-II <xref target="DeoxysII"/> are RECOMMENDED. 
-Note however that currently none of them has yet been defined for ESP. </t>
+Note however that currently none of these are yet defined for use with ESP.
+[Paul: missing guidance on what to do then for devices using manual keying?]
+</t>
 
-<t> Interoperability:  Interoperability considers the encryption algorithm transforms shared with the other nodes. 
-Note that it is not because an encryption algorithm transform is widely deployed that it is secured. 
-As a result, security should not be weakened for interoperability. 
-<xref target="RFC8221"/> and successors consider the life cycle of encryption algorithm transforms sufficiently long to provide interoperability.  
-Constrained devices may have limited interoperability requirements which makes possible to reduces the number of encryption algorithm transforms to implement.</t>
+<t> Interoperability: constrained devices usually only implement one or very few different encryption algorithm transforms.
+<xref target="RFC8221"/> takes the life cycle of encryption algorithm transforms and device manufactoring into consideration in its recommendations for mandatory-to-implement ("MTI") algorithms.
+</t>
 
-<t> Power Consumption and Cipher Suite Complexity: Complexity of the encryption algorithm transform or the energy associated with it are especially considered when devices have limited resources or are using some batteries, in which case the battery determines the life of the
-device. 
-The choice of a cryptographic function may consider re-using specific libraries or to take advantage of hardware acceleration provided by the device. 
-For example, if the device benefits from AES hardware modules and uses AES-CTR, it may prefer AUTH_AES-XCBC for its authentication. 
-In addition, some devices may also embed radio modules with hardware acceleration for AES-CCM, in which case, this mode may be preferred.</t>
+<t> Power Consumption and Cipher Suite Complexity: Complexity of the encryption algorithm transform and the energy cost associated with it are especially important considerations for devices that have limited resources or are battery powered.
+The battery life might determine the lifetime of the entire device. 
+The choice of a cryptographic function should consider re-using specific libraries or to take advantage of hardware acceleration provided by the device. 
+For example, if the device benefits from AES hardware modules and uses AES-CTR, it may prefer ENCR_AES_CBC [Paul: not ENCR_AES_CTR??] for its encryption. 
+In addition, some devices may also embed radio modules with hardware acceleration for AES-CCM, in which case, this transform may be preferred.</t>
 
-<t> Power Consumption and Bandwidth Consumption: Similarly to the encryption algorithm transform complexity, reducing the payload sent, may significantly reduce the energy consumption of the device. 
-As a result, encryption algorithm transforms with low overhead may be considered. 
+<t> Power Consumption and Bandwidth Consumption: Reducing the payload sent may significantly reduce the energy consumption of the device. 
+Encryption algorithm transforms with low overhead are strongly preferred.
 To reduce the overall payload size one may, for example:
 
 <list style="numbers">
@@ -366,21 +361,22 @@ To reduce the overall payload size one may, for example:
 
 <section anchor="sec-security-considerations" title="Security Considerations">
       
-<t> Security considerations are those of <xref target="RFC4303"/>. 
+<t> Security Considerations are those of <xref target="RFC4303"/>. 
 In addition, this document provided security recommendations and guidance over the implementation choices for each ESP field.  </t>
 
 <t>The security of a communication provided by ESP is closely related to the security associated with the management of that key. 
 This usually includes mechanisms to prevent a nonce from repeating, for example.
-When a node is provisioned with a session key that is used across reboot, the implementer must ensure that the mechanisms put in place remain valid across reboot as well. 
+When a node is provisioned with a session key that is used across reboot, the implementer must ensure that the mechanisms put in place remain valid across reboot as well.
 </t>
 
 <t>This document recommends to use ESP in conjunction with key management protocols such as for example IKEv2 <xref target="RFC7296"/> or minimal IKEv2 <xref target="RFC7815"/>.
 Such mechanisms are responsible for negotiating fresh session keys as well as prevent a session key being use beyond its lifetime.
 
-When such mechanisms cannot be implemented and the session key is, for example, provisioned, the nodes must ensure that keys are not used beyond their lifetime and that the appropriate use of the key remains across reboots - e.g. conditions on counters and nonces remains valid. 
+When such mechanisms cannot be implemented, such as when the the session key is provisioned, the device must ensure that keys are not used beyond their lifetime and that the the key remains used in compliance will all security requirements across reboots - e.g. conditions on counters and nonces remains valid. 
 </t>
 
-<t>When a node generates its key or when random value such as nonces are generated, the random generation must follow <xref target="RFC4086"/>. In addition, <xref target="SP-800-90A-Rev-1"/> provides appropriated guidance to build random generators based on deterministic random functions. 
+<t>When a device generates its own key or when random value such as nonces are generated, the random generation must follow <xref target="RFC4086"/>.
+In addition, <xref target="SP-800-90A-Rev-1"/> provides guidance on how to build random generators based on deterministic random functions. 
 </t>
 
 </section>
@@ -391,11 +387,11 @@ When such mechanisms cannot be implemented and the session key is, for example, 
 This problem is not inherent to the minimal ESP described in this document and also concerns the use of ESP in general. </t>
 
 <t>This document targets minimal implementations of ESP and as such describes some minimalistic way to implement ESP.
-In some cases, this may result in potentially exposing privacy sensitive pieces of information.
-This document describes these privacy implications so the designer can take the appropriate decisions given the specificities of a given environment and deployment. </t>
+In some cases, this may result in potentially revealing privacy sensitive pieces of information.
+This document describes these privacy implications so the implementer can take the appropriate decisions given the specificities of a given environment and deployment. </t>
 
 <t>The main risks associated with privacy is the ability to identify an application or a device by analyzing the traffic which is designated as traffic shaping.
-As discussed in <xref target="sec-spi"/>, the use in some very specific context of non randomly generated SPI might in some cases ease the determination of the device of the application.
+As discussed in <xref target="sec-spi"/>, the use in some very specific context of non randomly generated SPI might in some cases ease the determination of the device or the application.
 Similarly, padding provides limited capabilities to obfuscate the traffic compared to those provided by TFC. Such consequence on privacy as detailed in <xref target="sec-padding"/>. </t>
 
 </section>
@@ -426,7 +422,7 @@ Thomas Peyrin Eric Thormarker and Scott Fluhrer suggested and clarified the use 
 <!--<?rfc include="reference.RFC.4309.xml"?>-->
 <?rfc include="reference.RFC.7296.xml"?>
 <?rfc include="reference.RFC.7815.xml"?>
-<!--<?rfc include="reference.RFC.8174.xml"?> -->
+<?rfc include="reference.RFC.8174.xml"?>
 <?rfc include="reference.RFC.8221.xml"?>
 <!--<?rfc include="reference.RFC.8247.xml"?>-->
 <?rfc include="reference.RFC.8750.xml"?>
