@@ -54,12 +54,12 @@ RFC 4303 remains the authoritative description.</t>
 
 </abstract>
 </front>
-  
+
 <middle>
 
 <section title="Requirements notation">
 
-<t>The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this document are to be interpreted as described in <xref target="RFC2119"/>.</t>
+<t>The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED", "MAY", and "OPTIONAL" in this document are to be interpreted as described in BCP 14 <xref target="RFC2119"/> <xref target="RFC8174"/> when, and only when, they appear in all capitals, as shown here.</t>
 
 </section>
 
@@ -425,13 +425,13 @@ Thomas Peyrin Eric Thormarker and Scott Fluhrer suggested and clarified the use 
 <!--<?rfc include="reference.RFC.4309.xml"?>-->
 <?rfc include="reference.RFC.7296.xml"?>
 <?rfc include="reference.RFC.7815.xml"?>
-<!--<?rfc include="reference.RFC.8174.xml"?> -->
+<?rfc include="reference.RFC.8174.xml"?>
 <?rfc include="reference.RFC.8221.xml"?>
 <!--<?rfc include="reference.RFC.8247.xml"?>-->
 <?rfc include="reference.RFC.8750.xml"?>
 
 </references>
-    
+
 <references title="Informative References">
 
 <?rfc include="reference.I-D.nikander-esp-beet-mode.xml"?>
