@@ -247,26 +247,22 @@ For outgoing ESP packets, padding must be applied as required by ESP.  </t>
 <t> In some situation the padding bytes may take a fixed value.
 This would typically be the case when the Data Payload is of fixed size.  </t>
 
-<t>ESP <xref target="RFC4303"/> also provides Traffic Flow Confidentiality (TFC) as a way to perform padding to hide traffic characteristics, which differs from respecting a 32 bit alignment. 
-TFC is not mandatory and must be negotiated with the SA management protocol.
-TFC has not been widely adopted for standard ESP traffic. 
-One possible reason is that it requires to shape the traffic according to one traffic pattern that needs to be maintained. 
-This is likely to require extra processing as well as providing a "well recognized" traffic shape which could end up being counterproductive. 
-As such, this document does not recommend that minimal ESP implementation supports TFC.</t>
+<t>ESP <xref target="RFC4303"/> additionally provides Traffic Flow Confidentiality (TFC) as a way to perform padding to hide traffic characteristics.
+TFC is not mandatory and is be negotiated with the SA management protocol, such as IKEv2.
+TFC has been widely implemented but it is not widely deployed for ESP traffic.
+This document recommends that minimal ESP implementations do not implement TFC.</t>
 
-<t>As a result, communication protection that was relying on TFC will be more sensitive to traffic shaping. 
-This could expose the application as well as the devices used to a passive monitoring attacker. 
-Such information could be used by the attacker in case a vulnerability is disclosed on the specific device. 
-In addition, some application use - such as health applications - may also reveal important privacy oriented information.</t>
+<t>Communication protection that relies on TFC would be more sensitive to traffic shaping without TFC.
+This can leak application information as well as the manifacturor or model of the device used to a passive monitoring attacker.
+Such information can be used by the attacker in case a vulnerability is known for the specific device or application.
+In addition, some application use - such as health applications - could leak important privacy oriented information.</t>
 
-<t>Some constrained nodes that have limited battery lifetime may also prefer avoiding sending extra padding bytes. 
-However, the same nodes may also be very specific to an application and device. 
-As a result, they are also likely to be the main target for traffic shaping. 
-In most cases, the payload carried by these nodes is quite small, and the standard padding mechanism may also be used as an alternative to TFC, with a sufficient tradeoff between the required energy to send additional payload and the exposure to traffic shaping attacks. 
-In addition, the information leaked by the traffic shaping may also be addressed by the application level. 
-For example, it is preferred to have a sensor sending some information at regular time interval, rather than when a specific event is happening. 
-Typically, a sensor monitoring the temperature, or a door is expected to send regularly the information - i.e. the temperature of the room or whether the door is closed or open) instead of only sending the information when the temperature has raised or when the door is being opened. </t>
-    
+<t>Constrained devices that have limited battery lifetime may prefer to avoid sending extra padding bytes.
+In most cases, the payload carried by these devices is quite small, and the standard padding mechanism can be used as an alternative to TFC.
+Alternatively, any information leak based on the size - or presence - of the packet can also be addressed at the application level, before the packet is encrypted with ESP.
+If application packets vary between 1 to 30 bytes, the application could always send 32 byte responses to ensure all traffic sent is of identical length.
+To prevent leaking information that a sensor changed state, such as "temperature changed" or "door opened", an application could send this information at regular time interval, rather than when a specific event is happening, even if the sensor state did not change.
+</t>
 </section>
     
 <section anchor="sec-nh" title="Next Header (8 bit)">
