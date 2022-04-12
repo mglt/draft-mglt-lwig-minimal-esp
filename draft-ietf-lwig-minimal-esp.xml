@@ -397,18 +397,18 @@ Similarly, padding provides limited capabilities to obfuscate the traffic compar
 </section>
 
 <section title="Acknowledgment">
-      
-<t> The authors would like to thank Daniel Palomares, Scott Fluhrer, Tero Kivinen, Valery Smyslov, Yoav Nir, Michael Richardson, Thomas Peyrin, Eric Thormarker, Nancy Cam-Winget and Bob Briscoe for their valuable comments.  
+
+<t> The authors would like to thank Daniel Palomares, Scott Fluhrer, Tero Kivinen, Valery Smyslov, Yoav Nir, Michael Richardson, Thomas Peyrin, Eric Thormarker, Nancy Cam-Winget and Bob Briscoe for their valuable comments.
 In particular Scott Fluhrer suggested including the rekey index in the SPI.
-Tero Kivinen provided also multiple clarifications and examples of deployment ESP within constrained devices with their associated optimizations. 
+Tero Kivinen also provided multiple clarifications and examples of deployment ESP within constrained devices with their associated optimizations.
 Thomas Peyrin Eric Thormarker and Scott Fluhrer suggested and clarified the use of transform resilient to nonce misuse.
 </t>
-   
-</section> 
 
-</middle> 
+</section>
 
-<back> 
+</middle>
+
+<back>
 
 <references title="Normative References">
 
