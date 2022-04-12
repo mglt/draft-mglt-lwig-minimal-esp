@@ -264,30 +264,33 @@ If application packets vary between 1 to 30 bytes, the application could always 
 To prevent leaking information that a sensor changed state, such as "temperature changed" or "door opened", an application could send this information at regular time interval, rather than when a specific event is happening, even if the sensor state did not change.
 </t>
 </section>
-    
-<section anchor="sec-nh" title="Next Header (8 bit)">
 
-<t>According to <xref target="RFC4303"/>, the Next Header is a mandatory 8 bits field in the packet. 
-Next header specifies the data contained in the payload as well as dummy packet, i.e. packets with the Next Header with a value 59 meaning "no next header". 
-In addition, the Next Header may also carry an indication on how to process the packet <xref target="I-D.nikander-esp-beet-mode"/>.  </t>
+<section anchor="sec-nh" title="Next Header (8 bit) and Dummy Packets">
 
-<t> The ability to generate and receive dummy packets is required by <xref target="RFC4303"/>. 
-For interoperability, a minimal ESP implementation must discard dummy packets without indicating an error.
-Note that such recommendation only applies for nodes receiving packets, and that nodes designed to only send data might not implement this capability.  </t>
-      
-<t> As the generation of dummy packets is subject to local management and based on a per-SA basis, a minimal ESP implementation may not generate such dummy packet.
-Specifically, in constrained environment sending dummy packets may have too much impact on the device lifetime, and should be avoided. 
-On the other hand, constrained nodes may be dedicated to specific applications, in which case, traffic pattern may expose the application or the type of node. 
-For these nodes, not sending dummy packet may have some privacy implication that needs to be measured. 
-However, for the same reasons exposed in <xref target="sec-padding"/> traffic shaping at the IPsec layer may also introduce some traffic pattern, and on constrained devices the application is probably the most appropriated layer to limit the risk of leaking information by traffic shaping.</t>
-      
-<t> In some cases, devices are dedicated to a single application or a single transport protocol, in which case, the Next Header has a fixed value.</t> 
+<t>ESP <xref target="RFC4303"/> defines the Next Header as a mandatory 8 bits field in the packet.
+The Next header, only visible after decryption, specifies the data contained in the payload.
+In addition, the Next Header may also carry an indication on how to process the packet <xref target="I-D.nikander-esp-beet-mode"/>.
+The Next Header can point to a dummy packet, i.e. packets with the Next Header value set to 59 meaning "no next header".
+The data following to "no next header" is dummy data - unstructured random bytes that appear like real encrypted data.
+</t>
+
+<t> The ability to generate and to receive and ignore dummy packets is required by <xref target="RFC4303"/>.
+An implementation can omit ever generating and sending dummy packets.
+For interoperability, a minimal ESP implementation must process and discard dummy packets without indicating an error.
+</t>
+
+<t>
+In constrained environments, sending dummy packets may have too much impact on the device lifetime, in which case dummy packets should not be generated and sent.
+Constrained devices running specific applications that would leak too much information by not generating and sending dummy packets could implement this functionality instead at the application layer.
+</t>
+
+<t> In some cases, devices are dedicated to a single application or a single transport protocol, in which case, the Next Header has a fixed value.</t>
 
 <t>Specific processing indications have not been standardized yet <xref target="I-D.nikander-esp-beet-mode"/> and is expected to result from an agreement between the peers.
 As a result, it should not be part of a minimal implementation of ESP.  </t>
 
 </section>
-    
+
 <section anchor="sec-icv" title="ICV">
       
 <t>The ICV depends on the cryptographic suite used.
