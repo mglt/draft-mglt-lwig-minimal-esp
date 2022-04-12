@@ -104,79 +104,78 @@ The primary purpose of Minimal ESP is to remain interoperable with other nodes i
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 ]]></artwork>
 </figure>
-    
+
 </section>
-    
+
 <section anchor="sec-spi" title="Security Parameter Index (SPI) (32 bit)">
 
 <!-- what is the spi / definition -->
-<t> According to the <xref target="RFC4303"/>, the SPI is a mandatory 32 bits field and is not allowed to be removed.  </t>
+<t> <xref target="RFC4303"/> defines the SPI as a mandatory 32 bits field.  </t>
 
-<t> The SPI has a local significance to index the Security Association (SA). 
-From <xref target="RFC4301"/> section 4.1, nodes supporting only unicast communications can index their SA only using the SPI. 
-On the other hand, nodes supporting multicast communications must also use the IP addresses and thus SA lookup needs to be performed using the longest match.  </t>
+<t> The SPI has a local significance to index the Security Association (SA).
+From <xref target="RFC4301"/> section 4.1, nodes supporting only unicast communications can index their SA using only the SPI.
+Nodes supporting multicast communications also require to use the IP addresses and thus SA lookup need to be performed using the longest match.  </t>
 
-<t> For nodes supporting only unicast communications, this document recommends indexing SA with the SPI only. 
-The index may be based on the full 32 bits of SPI or a subset of these bits. 
+<t> For nodes supporting only unicast communications, this document recommends indexing the SA using only the SPI.
+The index may be based on the full 32 bits of SPI or a subset of these bits.
 The node may require a combination of the SPI as well as other parameters (like the IP address) to index the SA.</t>
 
-<t> Values 0-255 must not be used. 
-As per section 2.1 of <xref target="RFC4303"/>, values 1-255 are reserved and 0 is only allowed to be used internally and it must not be sent on the wire. </t>
+<t> Values 0-255 must not be used.
+As per section 2.1 of <xref target="RFC4303"/>, values 1-255 are reserved and 0 is only allowed to be used internally and it MUST NOT be sent over the wire. </t>
 
 <!-- generation of the spi -->
 
-<t> <xref target="RFC4303"/> does not require the SPI to be randomly generated over 32 bits.
-However, this is the recommended way to generate SPIs as it provides some privacy benefits and avoids, for example, correlation between ESP communications. 
-To randomly generate a 32 bit SPI, the node generates a random 32 bit value and checks it does not fall in the 0-255 range. 
-If the SPI has an acceptable value, it is used to index the inbound session, otherwise the SPI is re-generated until an acceptable value is found. 
+<t> <xref target="RFC4303"/> does not require the 32 bit SPI to be randomly generated, although that is the recommended way to generate SPIs as it provides some privacy and security benefits and avoids correlation between ESP communications.
+To obtain a usable random 32 bit SPI, the node generates a random 32 bit value and checks it does not fall within the 0-255 range.
+If the SPI has an acceptable value, it is used to index the inbound session.
+Otherwise the generated value is discarded and the process repeats until a valid value is found.
 </t>
 
-<t>However, some constrained nodes may be less concerned by the privacy properties associated to SPIs randomly generated. 
-Examples of such nodes might include sensors looking to reduce their code complexity, in which case the use of a predictive function to generate the SPI might be preferred over the generation and handling of random values. 
-An example of such predictable function may consider the combination of a fixed value and the memory address of the SAD structure. 
-For every incoming packet, the node will be able to point the SAD structure directly from the SPI value. 
-This avoids having a separate and additional binding between SPI and SAD entries that is involved for every incoming packet. 
+<t>Some constrained devies are less concerned with the privacy properties associated to randomly generated SPIs.
+Examples of such devices might include sensors looking to reduce their code complexity.
+The use of a predictive function to generate the SPI might be preferred over the generation and handling of random values.
+An implementation of such predictable function could use the combination of a fixed value and the memory address of the SAD structure.
+For every incoming packet, the node will be able to point to the SAD structure directly from the SPI value.
+This avoids having a separate and additional binding and lookup function for the SPI to its SAD entry for every incoming packet.
 </t>
 
 <!-- privacy / security implication for non random SPIs -->
 
 <section title="Considerations over SPI generation">
 
-<t>SPI that are not randomly generated over 32 bits may lead to privacy and security concerns. 
-As a result, the use of alternative designs requires careful security and privacy reviews. 
+<t>SPIs that are not randomly generated over 32 bits may have privacy and security concerns.
+As a result, the use of alternative designs requires careful security and privacy reviews.
 This section provides some considerations upon the adoption of alternative designs. </t>
 
-<t>Note that SPI value is used only for inbound traffic, as such the SPI negotiated with IKEv2 <xref target="RFC7296"/> or <xref target="RFC7815"/> by a peer, is the value used by the remote peer when it sends traffic. 
-As SPI is only used for inbound traffic by the peer, this allows each peer to manage the set of SPIs used for its inbound traffic. 
-Similarly, the privacy concerns associated with the generation of non random SPI is also limited to the incoming traffic.</t>
+<t>The SPI value is only looked up for inbound traffic.
+The SPI negotiated with IKEv2 <xref target="RFC7296"/> or Minimal IKEv2 <xref target="RFC7815"/> by a peer is the value used by the remote peer when it sends traffic.
+As the SPI is only used for inbound traffic by the peer, this allows each peer to manage the set of SPIs used for its inbound traffic.
+Similarly, the privacy concerns associated with the generation of non-random SPIs is also limited to the incoming traffic.</t>
 
-<t>When alternate designs are considered, it is likely that the number of possible SPIs will be limited. 
-This limit should both consider the number of inbound SAs - possibly per IP addresses - as well as the ability for the node to rekey. 
-SPI can typically be used to implement a key update with the SPI indicating the key is being used. 
-For example, a SPI might be encoded with the Security Association Database (SAD) entry on a subset of bytes (for example 3 bytes), while the remaining byte indicates the rekey index. 
+<t>Alternate designs that take less resources than fully random SPI's are likely using a limited list of possible SPIs.
+This limit should take into account the number of inbound SAs - possibly per IP addresses - as well as the requirement for rekeying which would briefly require 2 inbound SPIs to co-exist as the new SA is setup before the old SA is torn down.
+SPI numbers can be used to implement tracking the inbound SAs when rekeying is taking place. When rekeying a SPI, the new SPI could use the SPI bytes to indicate the rekeying index.
+For example, a SPI might be encoded with the Security Association Database (SAD) numerical [Paul?] entry on a subset of 3 bytes, with the remaining byte indicating the rekey index.
 </t>
 
-
-<t>The use of a smaller number of SPIs across communications comes with privacy and security concerns.
-Typically, some specific values or subset of SPI values may reveal the models or manufacturer of the node implementing ESP. 
-This may raise some privacy issues as an observer is likely to be able to determine the constrained devices of the network. 
-In some cases, these nodes may host a very limited number of applications - typically a single application - in which case the SPI would provide some information related to the application of the user. 
-In addition, the device or application may be associated with some vulnerabilities, in which case specific SPI values may be used by an attacker to discover vulnerabilities. 
+<t>The use of a small limited set of SPI numbers across communications comes with privacy and security concerns.
+Some specific values or subset of SPI values could reveal the models or manufacturer of the node implementing ESP. It could also reveal some state such as "not yet rekeyed" or "rekeyed 10 times".
+If a constrained host uses a very limited or even just one application, the SPI itself could indicate what kind of traffic (eg the kind of application typically running) is transmitted. This could be further correlated by encrypted data size to further leak information to an observer on the network.
+In addition, use of specific hardcoded SPI numbers could reveal a manufacturor or device version. If updated devices use different SPI numbers, an attacker could locate vulnerable devices by their use of specific SPI numbers.
 </t>
 
 <t>
-While the use of randomly generated SPIs may reduce the leakage or privacy of security related information by ESP itself, these pieces of information may also be leaked otherwise. 
-As a result, a privacy analysis should consider at least the type of information as well the traffic pattern before determining a non random SPI can be used. 
-Typically, temperature sensors, wind sensors, used outdoors may not leak privacy sensitive information and most of its traffic is expected to be outbound traffic. 
-When used indoors, a sensor that reports every minute an encrypted status of the door (closed or opened) may leak truly little privacy sensitive information outside the local network. 
-In these examples, the privacy aspect of the information itself might be limited. Being able to determine the version of the sensor to potentially take control of it may also have some limited security consequences. Of course this depends on the context these sensors are being used. If the risks associated to privacy and security are acceptable, a randomized SPI is not necessary. In any case, for such constrained sensors, it remains better to have secure communications with non random SPI as opposed to no security.</t> 
-
+A privacy analysis should consider at least the type of information as well the traffic pattern before deciding whether  non-random SPIs are safe to use.
+Typically temperature sensors, wind sensors, used outdoors may not leak privacy sensitive information and most of its traffic is expected to be outbound traffic.
+When used indoors, a sensor that reports an encrypted status of a door (closed or opened) every minute, might not leak sensitive information outside the local network.
+In these examples, the privacy aspect of the information itself might be limited. Being able to determine the version of the sensor to potentially take control of it may also have some limited security consequences. Of course this depends on the context these sensors are being used. If the risks associated to privacy and security are acceptable, a non-randomized SPI can be used.
+</t>
 
 
 </section>
 
 </section>
-    
+
 <section anchor="sec-sn" title="Sequence Number(SN) (32 bit)">
       
 <t> According to  <xref target="RFC4303"/>, the Sequence Number (SN) is a mandatory 32 bits field in the packet.  </t>
