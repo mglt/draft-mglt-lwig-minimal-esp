@@ -64,22 +64,20 @@ RFC 4303 remains the authoritative description.</t>
 </section>
 
 <section title="Introduction">
-      
-<t>ESP <xref target="RFC4303"/>  is part of the IPsec protocol suite <xref target="RFC4301"/>. 
-IPsec is used to provide confidentiality, data origin authentication, connectionless integrity, an anti-replay service (a form of partial sequence integrity) and limited traffic flow confidentiality (TFC) padding.</t>
+
+<t>ESP <xref target="RFC4303"/>  is part of the IPsec protocol suite <xref target="RFC4301"/>.
+IPsec is used to provide confidentiality, data origin authentication, connectionless integrity, an anti-replay service and limited traffic flow confidentiality (TFC) padding.</t>
 
 <t><xref target="fig-esp-description"/> describes an ESP Packet.
-Currently, ESP is implemented in the kernel of major multipurpose Operating Systems (OS). 
-The ESP and IPsec suite is usually implemented in a complete way to fit multiple purpose usage of these OSes. 
-However, completeness of the IPsec suite as well as multipurpose scope of these OSes is often performed at the expense of resources, or performance. 
-As a result, constrained devices are likely to have their own implementation of ESP optimized and adapted to their specificities such as limiting the number of flash writes (for each packet or across wake time), handling frequent wakeup and sleep state, limiting wakeup time, or reducing the use of random generation.
-With the adoption of IPsec by IoT devices with minimal IKEv2 <xref target="RFC7815"/> and ESP Header Compression (EHC) with <xref target="I-D.mglt-ipsecme-diet-esp"/> or <xref target="I-D.mglt-ipsecme-ikev2-diet-esp-extension"/>, it becomes crucial that ESP implementation designed for constrained devices remain inter-operable with the standard ESP implementation to avoid a fragmented usage of ESP. 
-This document describes the minimal properties an ESP implementation needs to meet to remain interoperable with <xref target="RFC4303"/> ESP. 
-In addition, this document also provides a set of options to implement these properties under certain constrained environments.
-This document does not update or modify RFC 4303, but provides a compact description of how to implement the minimal version of the protocol. 
-RFC 4303 remains the authoritative description.  </t>
+Currently, ESP is implemented in the kernel of most major multipurpose Operating Systems (OS).
+ESP is usually implemented with all of its features to fit the multiple purpose usage of these OSes, at the expense of resources and with no considerations for code size.
+Constrained devices are likely to have their own implementation of ESP optimized and adapted to their specific use, such as limiting the number of flash writes (for each packet or across wake time), handling frequent wakeup and sleep state, limiting wakeup time, and reducing the use of random generation.
+With the adoption of IPsec by IoT devices with minimal IKEv2 <xref target="RFC7815"/> and ESP Header Compression (EHC) with <xref target="I-D.mglt-ipsecme-diet-esp"/> or <xref target="I-D.mglt-ipsecme-ikev2-diet-esp-extension"/>, these ESP implementations MUST remain interoperable with standard ESP implementations.
+This document describes the minimal properties an ESP implementation needs to meet to remain interoperable with <xref target="RFC4303"/> ESP.
+In addition, this document also provides advise to implementers for implementing ESP within constrained environments.
+This document does not update or modify RFC 4303.</t>
 
-<t> For each field of the ESP packet represented in <xref target="fig-esp-description"/> this document provides recommendations and guidance for minimal implementations. 
+<t> For each field of the ESP packet represented in <xref target="fig-esp-description"/> this document provides recommendations and guidance for minimal implementations.
 The primary purpose of Minimal ESP is to remain interoperable with other nodes implementing RFC 4303 ESP, while limiting the standard complexity of the implementation.
 </t>
 
