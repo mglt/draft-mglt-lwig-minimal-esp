@@ -387,11 +387,11 @@ In addition, <xref target="SP-800-90A-Rev-1"/> provides guidance on how to build
 This problem is not inherent to the minimal ESP described in this document and also concerns the use of ESP in general. </t>
 
 <t>This document targets minimal implementations of ESP and as such describes some minimalistic way to implement ESP.
-In some cases, this may result in potentially exposing privacy sensitive pieces of information.
-This document describes these privacy implications so the designer can take the appropriate decisions given the specificities of a given environment and deployment. </t>
+In some cases, this may result in potentially revealing privacy sensitive pieces of information.
+This document describes these privacy implications so the implementer can take the appropriate decisions given the specificities of a given environment and deployment. </t>
 
 <t>The main risks associated with privacy is the ability to identify an application or a device by analyzing the traffic which is designated as traffic shaping.
-As discussed in <xref target="sec-spi"/>, the use in some very specific context of non randomly generated SPI might in some cases ease the determination of the device of the application.
+As discussed in <xref target="sec-spi"/>, the use in some very specific context of non randomly generated SPI might in some cases ease the determination of the device or the application.
 Similarly, padding provides limited capabilities to obfuscate the traffic compared to those provided by TFC. Such consequence on privacy as detailed in <xref target="sec-padding"/>. </t>
 
 </section>
