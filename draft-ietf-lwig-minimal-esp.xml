@@ -116,16 +116,16 @@ The primary purpose of Minimal ESP is to remain interoperable with other nodes i
 From <xref target="RFC4301"/> section 4.1, nodes supporting only unicast communications can index their SA using only the SPI.
 Nodes supporting multicast communications also require to use the IP addresses and thus SA lookup need to be performed using the longest match.  </t>
 
-<t> For nodes supporting only unicast communications, this document recommends indexing the SA using only the SPI.
+<t> For nodes supporting only unicast communications, it is RECOMMENDED indexing the SA using only the SPI.
 The index may be based on the full 32 bits of SPI or a subset of these bits.
 The node may require a combination of the SPI as well as other parameters (like the IP address) to index the SA.</t>
 
-<t> Values 0-255 must not be used.
+<t> Values 0-255 MUST NOT be used.
 As per section 2.1 of <xref target="RFC4303"/>, values 1-255 are reserved and 0 is only allowed to be used internally and it MUST NOT be sent over the wire. </t>
 
 <!-- generation of the spi -->
 
-<t> <xref target="RFC4303"/> does not require the 32 bit SPI to be randomly generated, although that is the recommended way to generate SPIs as it provides some privacy and security benefits and avoids correlation between ESP communications.
+<t> <xref target="RFC4303"/> does not require the 32 bit SPI to be randomly generated, although that is the RECOMMENDED way to generate SPIs as it provides some privacy and security benefits and avoids correlation between ESP communications.
 To obtain a usable random 32 bit SPI, the node generates a random 32 bit value and checks it does not fall within the 0-255 range.
 If the SPI has an acceptable value, it is used to index the inbound session.
 Otherwise the generated value is discarded and the process repeats until a valid value is found.
@@ -209,7 +209,7 @@ In addition to the time value, a RAM based counter can be used to ensure that if
 Note that standard receivers are generally configured with incrementing counters and, if not appropriately configured, the use of a significantly larger SN than the previous packet can result in that packet falling outside of the peer's receiver window which could cause that packet to be discarded.
 </t>
 
-<t>For inbound traffic, this document recommends that receivers implement anti-replay protection.
+<t>For inbound traffic, it is RECOMMENDED that receivers implement anti-replay protection.
 The size of the window should depend on the property of the network to deliver packets out of order.
 In an environment where out of order packets are not possible, the window size can be set to one.
 An ESP implementation may choose to not implement an anti-replay protection.
@@ -226,15 +226,15 @@ Another mechanism could be used where only the received time on the device is us
 </t>
 
 <t>The SN can be represented as a 32 bit number, or as a 64 bit number, known as Extended Sequence Number (ESN).
-As per <xref target="RFC4303"/>, support of ESN is not mandatory and its use is negotiated via IKEv2 <xref target="RFC7296"/>.A
-ESN is used for high speed links to ensure there can be more than 2^32 packets before the SA needs to be rekeyed to prevent
+As per <xref target="RFC4303"/>, support of ESN is not mandatory and its use is negotiated via IKEv2 <xref target="RFC7296"/>.
+A ESN is used for high speed links to ensure there can be more than 2^32 packets before the SA needs to be rekeyed to prevent
 the SN from rolling over.
 This assumes the SN is incremented by 1 for each packet.
 When the SN is incremented differently - such as when time is used - rekeying needs to happen based on how the SN is incremented
 to prevent the SN from rolling over.
 The security of all data protected under a given key decreases slightly with each message and a node must ensure the limit is not reached - even though the SN would permit it.
 Estimation of the maximum number of packets to be sent by a node is not always predicatable and large margins should be used espcially as nodes could be online for much more time than expected.
-Even for constrained devices, this document recommends implementing some rekey mechanisms (see <xref target="sec-security-considerations"/>).
+Even for constrained devices, it is RECOMMENDED to implement some rekey mechanisms (see <xref target="sec-security-considerations"/>).
 </t>
 
 
@@ -254,9 +254,9 @@ For outgoing ESP packets, padding must be applied as required by ESP.  </t>
 This would typically be the case when the Data Payload is of fixed size.  </t>
 
 <t>ESP <xref target="RFC4303"/> additionally provides Traffic Flow Confidentiality (TFC) as a way to perform padding to hide traffic characteristics.
-TFC is not mandatory and is be negotiated with the SA management protocol, such as IKEv2.
+TFC is not mandatory and is negotiated with the SA management protocol, such as IKEv2.
 TFC has been widely implemented but it is not widely deployed for ESP traffic.
-This document recommends that minimal ESP implementations do not implement TFC.</t>
+It is NOT RECOMMENDED to implement TFC for a minimal ESP. </t>
 
 <t>As a consequence, communication protection that relies on TFC would be more sensitive to traffic shaping without TFC.
 This can leak application information as well as the manifacturor or model of the device used to a passive monitoring attacker.
@@ -282,7 +282,7 @@ The data following to "no next header" is unstructured dummy data.
 
 <t>The ability to generate and to receive and ignore dummy packets is required by <xref target="RFC4303"/>.
 An implementation can omit ever generating and sending dummy packets.
-For interoperability, a minimal ESP implementation must process and discard dummy packets without indicating an error.
+For interoperability, a minimal ESP implementation MUST be able to process and discard dummy packets without indicating an error.
 </t>
 
 <t>
@@ -303,21 +303,21 @@ Constrained devices running specific applications that would leak too much infor
 <t> In some cases, devices are dedicated to a single application or a single transport protocol, in which case, the Next Header has a fixed value.</t>
 
 <t>Specific processing indications have not been standardized yet <xref target="I-D.nikander-esp-beet-mode"/> and is expected to result from an agreement between the peers.
-As a result, it should not be part of a minimal implementation of ESP.  </t>
+As a result, it SHOULD NOT be part of a minimal implementation of ESP.  </t>
 
 </section>
 
 <section anchor="sec-icv" title="ICV">
 
 <t>The ICV depends on the cryptographic suite used.
-As detailed in <xref target="RFC8221"/> authentication or authenticated encryption are recommended and as such the ICV field must be present with a size different from zero.
+As detailed in <xref target="RFC8221"/> authentication or authenticated encryption are RECOMMENDED and as such the ICV field must be present with a size different from zero.
 Its length is defined by the security recommendations only.  </t>
 
 </section>
 
 <section anchor="sec-encr" title="Cryptographic Suites">
 
-<t> The recommended algorithms to use are expected to evolve over time and implementers should follow the recommendations provided by <xref target="RFC8221"/> and updates.
+<t> The recommended algorithms to use are expected to evolve over time and implementers SHOULD follow the recommendations provided by <xref target="RFC8221"/> and updates.
 </t>
 
 <t> This section lists some of the criteria that may be considered to select an appropriate cryptographic suite.
@@ -327,7 +327,7 @@ The list is not expected to be exhaustive and may also evolve over time: </t>
 
 <t> Security: Security is the criteria that should be considered first for the selection of encryption algorithm transform.
 The security of encryption algorithm transforms is expected to evolve over time, and it is of primary importance to follow up-to-date security guidance and recommendations.
-The chosen encryption algorithm must not be vulnerable or weak (see <xref target="RFC8221"/> for outdated ciphers).
+The chosen encryption algorithm MUST NOT be vulnerable or weak (see <xref target="RFC8221"/> for outdated ciphers).
 ESP can be used to authenticate only (ENCR_NULL) or to encrypt the communication.
 In the latter case, authenticated encryption (AEAD) is RECOMMENDED <xref target="RFC8221"/>.</t>
 
@@ -381,16 +381,16 @@ In addition, this document provided security recommendations and guidance over t
 
 <t>The security of a communication provided by ESP is closely related to the security associated with the management of that key.
 This usually includes mechanisms to prevent a nonce from repeating, for example.
-When a node is provisioned with a session key that is used across reboot, the implementer must ensure that the mechanisms put in place remain valid across reboot as well.
+When a node is provisioned with a session key that is used across reboot, the implementer MUST ensure that the mechanisms put in place remain valid across reboot as well.
 </t>
 
-<t>This document recommends to use ESP in conjunction with key management protocols such as for example IKEv2 <xref target="RFC7296"/> or minimal IKEv2 <xref target="RFC7815"/>.
+<t>It is RECOMMENDED to use ESP in conjunction with key management protocols such as for example IKEv2 <xref target="RFC7296"/> or minimal IKEv2 <xref target="RFC7815"/>.
 Such mechanisms are responsible for negotiating fresh session keys as well as prevent a session key being use beyond its lifetime.
 
-When such mechanisms cannot be implemented, such as when the the session key is provisioned, the device must ensure that keys are not used beyond their lifetime and that the the key remains used in compliance will all security requirements across reboots - e.g. conditions on counters and nonces remains valid.
+When such mechanisms cannot be implemented, such as when the the session key is provisioned, the device MUST ensure that keys are not used beyond their lifetime and that the the key remains used in compliance will all security requirements across reboots - e.g. conditions on counters and nonces remains valid.
 </t>
 
-<t>When a device generates its own key or when random value such as nonces are generated, the random generation must follow <xref target="RFC4086"/>.
+<t>When a device generates its own key or when random value such as nonces are generated, the random generation MUST follow <xref target="RFC4086"/>.
 In addition, <xref target="SP-800-90A-Rev-1"/> provides guidance on how to build random generators based on deterministic random functions.
 </t>
 
