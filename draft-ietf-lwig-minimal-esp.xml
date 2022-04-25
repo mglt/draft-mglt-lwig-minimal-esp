@@ -131,7 +131,7 @@ If the SPI has an acceptable value, it is used to index the inbound session.
 Otherwise the generated value is discarded and the process repeats until a valid value is found.
 </t>
 
-<t>Some constrained devies are less concerned with the privacy properties associated to randomly generated SPIs.
+<t>Some constrained devices are less concerned with the privacy properties associated to randomly generated SPIs.
 Examples of such devices might include sensors looking to reduce their code complexity.
 The use of a predictive function to generate the SPI might be preferred over the generation and handling of random values.
 An implementation of such predictable function could use the combination of a fixed value and the memory address of the SAD structure.
@@ -149,13 +149,19 @@ This section provides some considerations upon the adoption of alternative desig
 
 <t>The SPI value is only looked up for inbound traffic.
 The SPI negotiated with IKEv2 <xref target="RFC7296"/> or Minimal IKEv2 <xref target="RFC7815"/> by a peer is the value used by the remote peer when it sends traffic.
-As the SPI is only used for inbound traffic by the peer, this allows each peer to manage the set of SPIs used for its inbound traffic.
-Similarly, the privacy concerns associated with the generation of non-random SPIs is also limited to the incoming traffic.</t>
+The main advantage of using a rekeying mechanism is to enable a rekey, that is performed by replacing an old SA by a new SA, both indexed with distinct SPIs. 
+As the SPI is only used for inbound traffic by the peer, this allows each peer to manage the set of SPIs used for its inbound traffic. 
+The necessary number of SPI reflects the number of inbound SAs as well as the ability to rekey these SAs. Typically, rekeying a SA is performed by creating a new SA (with a dedicated SPI) before the old SA is deleted. This results in an additional SA and the need to support an additional SPI.
+Similarly, the privacy concerns associated with the generation of non-random SPIs is also limited to the incoming traffic. </t>
 
-<t>Alternate designs that take less resources than fully random SPI's are likely using a limited list of possible SPIs.
+<!--Alternate designs that take less resources than fully random SPI's are likely using a limited list of possible SPIs.
 This limit should take into account the number of inbound SAs - possibly per IP addresses - as well as the requirement for rekeying which would briefly require 2 inbound SPIs to co-exist as the new SA is setup before the old SA is torn down.
+
+-->
+
+<t>
+Alternatively, some constrained devices will not implement IKEv2 or Minimal IKEv2 and as such will not be able to manage a roll-over between two distinct SAs. In addition, some of these constrained devices are also likely to have a limited number of SAs. One possible way to enable a rekey mechanism with these devices is to use the SPI where for example the first 3 bytes designates the SA while the remaining byte indicates a rekey index.
 SPI numbers can be used to implement tracking the inbound SAs when rekeying is taking place. When rekeying a SPI, the new SPI could use the SPI bytes to indicate the rekeying index.
-For example, a SPI might be encoded with the Security Association Database (SAD) numerical [Paul?] entry on a subset of 3 bytes, with the remaining byte indicating the rekey index.
 </t>
 
 <t>The use of a small limited set of SPI numbers across communications comes with privacy and security concerns.
@@ -212,7 +218,7 @@ This will have the same issues as discussed earlier with the SN.
 Some constrained device implementations may choose to not implement the optional anti-replay protection.
 A typical example might consider an IoT device such as a temperature sensor that is sending a temperature measurement every 60 seconds, and that receives an acknowledgment from the receiver.
 In such cases, the ability to spoof and replay an acknowledgement is of limited interest and might not justify the implementation of an anti-replay mechanism.
-Receiving peers may also use ESP anti-replay mechanism adapted to a specific application. [Paul ????]
+Receiving peers may also use ESP anti-replay mechanism adapted to a specific application.
 Typically, when the sending peer is using SN based on time, anti-replay may be implemented by discarding any packets that present a SN whose value is too much in the past.
 Such mechanisms may consider clock drifting in various ways in addition to acceptable delay induced by the network to avoid the anti replay windows rejecting legitimate packets.
 It could accept any SN as long as it is higher than the previously received SN.
@@ -252,7 +258,7 @@ TFC is not mandatory and is be negotiated with the SA management protocol, such 
 TFC has been widely implemented but it is not widely deployed for ESP traffic.
 This document recommends that minimal ESP implementations do not implement TFC.</t>
 
-<t>Communication protection that relies on TFC would be more sensitive to traffic shaping without TFC.
+<t>As a consequence, communication protection that relies on TFC would be more sensitive to traffic shaping without TFC.
 This can leak application information as well as the manifacturor or model of the device used to a passive monitoring attacker.
 Such information can be used by the attacker in case a vulnerability is known for the specific device or application.
 In addition, some application use - such as health applications - could leak important privacy oriented information.</t>
@@ -271,19 +277,29 @@ To prevent leaking information that a sensor changed state, such as "temperature
 The Next header, only visible after decryption, specifies the data contained in the payload.
 In addition, the Next Header may also carry an indication on how to process the packet <xref target="I-D.nikander-esp-beet-mode"/>.
 The Next Header can point to a dummy packet, i.e. packets with the Next Header value set to 59 meaning "no next header".
-The data following to "no next header" is dummy data - unstructured random bytes that appear like real encrypted data.
+The data following to "no next header" is unstructured dummy data.
 </t>
 
-<t> The ability to generate and to receive and ignore dummy packets is required by <xref target="RFC4303"/>.
+<t>The ability to generate and to receive and ignore dummy packets is required by <xref target="RFC4303"/>.
 An implementation can omit ever generating and sending dummy packets.
 For interoperability, a minimal ESP implementation must process and discard dummy packets without indicating an error.
 </t>
 
 <t>
 In constrained environments, sending dummy packets may have too much impact on the device lifetime, in which case dummy packets should not be generated and sent.
-Constrained devices running specific applications that would leak too much information by not generating and sending dummy packets could implement this functionality instead at the application layer.
-</t>
 
+On the other hand, Constrained devices running specific applications that would leak too much information by not generating and sending dummy packets may implement this functionality or even implement something similar at the application layer.
+Note also that similarly to padding and TFC that can be used to hide some traffic characteristics (see ), dummy packet may also reveal some patterns that can be used to identify the application.
+For example, an application may send dummy data to hide some traffic pattern. Suppose such such application sends a 1 byte data when a change occurs. 
+This results in sending a packet notifying a change has occurred. 
+Dummy packet may be used to prevent such information to be leaked by sending a 1 byte packet every second when the information is not changed.
+After an upgrade the data becomes two bytes. At that point, the  dummy packets do not hide anything and having 1 byte regularly versus 2 bytes make even the identification of the application, version easier to identify.
+This generaly makes the use of dummy packets more appropriated on high speed links.
+</t>
+<!-- 
+Constrained devices running specific applications that would leak too much information by not generating and sending dummy packets could implement this functionality instead at the application layer.
+
+-->
 <t> In some cases, devices are dedicated to a single application or a single transport protocol, in which case, the Next Header has a fixed value.</t>
 
 <t>Specific processing indications have not been standardized yet <xref target="I-D.nikander-esp-beet-mode"/> and is expected to result from an agreement between the peers.
@@ -320,7 +336,6 @@ While the generation of the nonce may prevent such collision during a session, t
 This causes an issue for devices that are configured using static keys (called manual keying) and manual keying should not be used with these encryption algorithms.
 When the key is likely to be re-used across reboots, algorithms that are nonce misuse resistant such as, for example, AES-SIV <xref target="RFC5297"/>, AES-GCM-SIV <xref target="RFC8452"/> or Deoxys-II <xref target="DeoxysII"/> are RECOMMENDED.
 Note however that currently none of these are yet defined for use with ESP.
-[Paul: missing guidance on what to do then for devices using manual keying?]
 </t>
 
 <t> Interoperability: constrained devices usually only implement one or very few different encryption algorithm transforms.
@@ -330,7 +345,7 @@ Note however that currently none of these are yet defined for use with ESP.
 <t> Power Consumption and Cipher Suite Complexity: Complexity of the encryption algorithm transform and the energy cost associated with it are especially important considerations for devices that have limited resources or are battery powered.
 The battery life might determine the lifetime of the entire device.
 The choice of a cryptographic function should consider re-using specific libraries or to take advantage of hardware acceleration provided by the device.
-For example, if the device benefits from AES hardware modules and uses AES-CTR, it may prefer ENCR_AES_CBC [Paul: not ENCR_AES_CTR??] for its encryption.
+For example, if the device benefits from AES hardware modules and uses ENCR_AES_CTR, it may prefer AUTH_AES-XCBC for its authentication.
 In addition, some devices may also embed radio modules with hardware acceleration for AES-CCM, in which case, this transform may be preferred.</t>
 
 <t> Power Consumption and Bandwidth Consumption: Reducing the payload sent may significantly reduce the energy consumption of the device.
